@@ -1,133 +1,130 @@
 const { verifyProxySignature } = require('../lib/verifyProxy');
 const { getOrderByNumberAndEmail, extractAWBFromOrder } = require('../lib/shopify');
-const { getTrackingDetails } = require('../lib/shiprocket');
+const { getTrackingByAWB } = require('../lib/shiprocket');
 
+/**
+ * App Proxy tracking endpoint.
+ * Shopify proxies glamhop.in/apps/tracking/track → this function.
+ *
+ * Query params expected:
+ *   - order_number: e.g. "1003" or "#1003"
+ *   - email: customer email address
+ *   - All Shopify App Proxy signature params (signature, shop, path_prefix, timestamp)
+ *
+ * Returns JSON — consumed by the fetch() call in tracking.liquid
+ */
 module.exports = async function handler(req, res) {
-  // Only allow GET requests
+  // Only allow GET
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
-  // Verify this request came from Shopify App Proxy
+  // ── Security: Verify this request came from Shopify App Proxy ──
   if (!verifyProxySignature(req.query)) {
     console.warn('[track] Invalid proxy signature — request rejected');
-    return res.status(403).json({ error: 'Unauthorized' });
+    return res.status(403).json({ success: false, error: 'Unauthorized' });
   }
 
+  // ── Input validation ──
   const { order_number, email } = req.query;
 
-  if (!order_number || !email) {
-    return res.status(400).json({ error: 'Missing order_number or email parameters' });
+  if (!order_number || !order_number.trim()) {
+    return res.status(400).json({ success: false, error: 'Order number is required.' });
+  }
+
+  if (!email || !email.trim()) {
+    return res.status(400).json({ success: false, error: 'Email address is required.' });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) {
+    return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
   }
 
   try {
-    // 1. Fetch order details from Shopify
+    // ── Step 1: Look up order in Shopify Admin API ──
+    console.log(`[track] Looking up order ${order_number} for ${email}`);
     const order = await getOrderByNumberAndEmail(order_number, email);
-    if (!order) {
-      return res.status(404).json({ error: 'Order not found. Please verify the order number and email.' });
-    }
 
-    // 2. Extract AWB from the Shopify order fulfillments
-    const fulfillments = extractAWBFromOrder(order);
-    if (fulfillments.length === 0) {
-      // Order exists but is not yet fulfilled (no tracking number available)
-      return res.status(200).json({
-        order_name: order.name,
-        fulfillment_status: order.fulfillment_status || 'unfulfilled',
-        awb: null,
-        courier: null,
-        timeline: []
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        error: 'No order found with this order number and email combination. Please check your details and try again.',
       });
     }
 
-    // Use the latest fulfillment details (assuming the last one is the latest)
+    // ── Step 2: Extract AWB from fulfillments ──
+    const fulfillments = extractAWBFromOrder(order);
+
+    if (!fulfillments || fulfillments.length === 0) {
+      return res.status(200).json({
+        success: true,
+        order: {
+          number: order.name,
+          status: 'Not Yet Shipped',
+          financial_status: order.financial_status,
+        },
+        tracking: null,
+        message: 'Your order has been confirmed but has not been shipped yet. We will update you once it is dispatched.',
+      });
+    }
+
+    // Use the most recent fulfillment (last in array = most recent)
     const latestFulfillment = fulfillments[fulfillments.length - 1];
     const awb = latestFulfillment.awb;
-    const courier = latestFulfillment.courier;
 
-    // 3. Attempt to fetch tracking details from Shiprocket
-    const trackingData = await getTrackingDetails(awb);
+    console.log(`[track] Found AWB: ${awb} via ${latestFulfillment.courier}`);
 
-    if (trackingData && trackingData.tracking_data && trackingData.tracking_data.track_status === 1) {
-      const track = trackingData.tracking_data.shipment_track[0];
-      const activities = trackingData.tracking_data.tracking_activity || [];
+    // ── Step 3: Fetch tracking from Shiprocket ──
+    let trackingData;
+    try {
+      trackingData = await getTrackingByAWB(awb);
+    } catch (shiprocketErr) {
+      console.error('[track] Shiprocket tracking failed:', shiprocketErr.message);
 
-      // Map Shiprocket activity checkpoints into the timeline format expected by the frontend
-      const timeline = activities.map((activity) => ({
-        status: activity.status || activity.activity || 'Update Received',
-        location: activity.location || '',
-        date: activity.date,
-      }));
-
+      // Return order info even if Shiprocket fails — better than a blank error
       return res.status(200).json({
-        order_name: order.name,
-        fulfillment_status: track.current_status || order.fulfillment_status,
-        awb: awb,
-        courier: courier,
-        timeline: timeline,
+        success: true,
+        order: {
+          number: order.name,
+          status: latestFulfillment.status || 'Fulfilled',
+          financial_status: order.financial_status,
+        },
+        tracking: {
+          courier: latestFulfillment.courier,
+          awb,
+          tracking_url: null,
+          events: [],
+        },
+        message: 'Tracking details are temporarily unavailable. Please try again in a few minutes.',
       });
     }
 
-    // 4. Fallback: If Shiprocket credentials are missing, the query fails, or the shipment isn't registered,
-    // generate a realistic mock timeline based on the Shopify fulfillment state.
-    const mockTimeline = generateMockTimeline(order);
-
+    // ── Step 4: Return clean success response ──
     return res.status(200).json({
-      order_name: order.name,
-      fulfillment_status: order.fulfillment_status || 'fulfilled',
-      awb: awb,
-      courier: courier,
-      timeline: mockTimeline,
+      success: true,
+      order: {
+        number: order.name,
+        status: trackingData.current_status || latestFulfillment.status || 'In Transit',
+        financial_status: order.financial_status,
+        created_at: order.created_at,
+      },
+      tracking: {
+        courier: trackingData.courier,
+        awb: trackingData.awb,
+        tracking_url: trackingData.tracking_url,
+        estimated_delivery: trackingData.estimated_delivery,
+        events: trackingData.events,
+      },
     });
 
   } catch (err) {
-    console.error('[track] Endpoint error:', err.message);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('[track] Unhandled error:', err.message);
+
+    // Do not expose internal error details to the client
+    return res.status(500).json({
+      success: false,
+      error: 'Something went wrong on our end. Please try again in a few minutes.',
+    });
   }
 };
-
-/**
- * Generates a mock timeline based on Shopify order's dates and fulfillment status.
- * Used when Shiprocket credentials are not provided or tracking is not yet live.
- * 
- * @param {object} order - Shopify order object
- * @returns {Array} List of timeline events sorted newest first
- */
-function generateMockTimeline(order) {
-  const timeline = [];
-  const createdAt = order.created_at ? new Date(order.created_at) : new Date();
-
-  // Step 1: Order Placed (Always exists)
-  timeline.push({
-    status: 'Order Placed',
-    location: 'System',
-    date: createdAt.toISOString(),
-  });
-
-  // Step 2: Order Packed & Shipped (Only if order is fulfilled)
-  if (order.fulfillment_status === 'fulfilled') {
-    const packedDate = new Date(createdAt.getTime() + 12 * 60 * 60 * 1000); // +12 hours
-    timeline.push({
-      status: 'Order Packed',
-      location: 'Warehouse',
-      date: packedDate.toISOString(),
-    });
-
-    const shippedDate = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000); // +24 hours
-    timeline.push({
-      status: 'Shipped',
-      location: 'Logistics Hub',
-      date: shippedDate.toISOString(),
-    });
-
-    const transitDate = new Date(createdAt.getTime() + 36 * 60 * 60 * 1000); // +36 hours
-    timeline.push({
-      status: 'In Transit',
-      location: 'En Route',
-      date: transitDate.toISOString(),
-    });
-  }
-
-  // Reverse timeline so that the most recent event appears at the top
-  return timeline.reverse();
-}
