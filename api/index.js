@@ -16,7 +16,7 @@ module.exports = async function handler(req, res) {
     }
 
     // Verify this request came from Shopify App Proxy
-    if (!verifyProxySignature(req.query)) {
+    if (!verifyProxySignature(req)) {
         console.warn('[index] Invalid proxy signature — request rejected');
         return res.status(403).json({ error: 'Unauthorized' });
     }
