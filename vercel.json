@@ -8,19 +8,19 @@
   "rewrites": [
     {
       "source": "/track",
-      "destination": "/api/track.js"
+      "destination": "/api/track"
     },
     {
       "source": "/api/track",
-      "destination": "/api/track.js"
+      "destination": "/api/track"
     },
     {
       "source": "/",
-      "destination": "/api/index.js"
+      "destination": "/api/index"
     },
     {
       "source": "/api",
-      "destination": "/api/index.js"
+      "destination": "/api/index"
     }
   ]
 }
