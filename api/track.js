@@ -14,6 +14,11 @@ const { getTrackingByAWB } = require('../lib/shiprocket');
  * Returns JSON — consumed by the fetch() call in tracking.liquid
  */
 module.exports = async function handler(req, res) {
+  console.log('[track] === AUDIT INCOMING REQUEST ===');
+  console.log(`[track] req.url: "${req.url}"`);
+  console.log(`[track] req.query:`, JSON.stringify(req.query));
+  console.log(`[track] req.headers:`, JSON.stringify(req.headers));
+
   // Only allow GET
   if (req.method !== 'GET') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });

@@ -10,6 +10,11 @@ const { verifyProxySignature } = require('../lib/verifyProxy');
  * Content-Type must be application/liquid for Shopify to render it as Liquid.
  */
 module.exports = async function handler(req, res) {
+    console.log('[index] === AUDIT INCOMING REQUEST ===');
+    console.log(`[index] req.url: "${req.url}"`);
+    console.log(`[index] req.query:`, JSON.stringify(req.query));
+    console.log(`[index] req.headers:`, JSON.stringify(req.headers));
+
     // Only allow GET requests
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
