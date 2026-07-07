@@ -62,6 +62,10 @@ module.exports = async function handler(req, res) {
     const fulfillments = extractAWBFromOrder(order);
 
     if (!fulfillments || fulfillments.length === 0) {
+      // ── DIAGNOSTIC: flow stops here — Shiprocket is NOT called ──
+      console.log('[track] ⛔ FLOW STOPPED: no fulfillments with a tracking_number found.');
+      console.log('[track]    Shiprocket will NOT be called for this order.');
+      console.log('[track]    Returning "Not Yet Shipped" to client.');
       return res.status(200).json({
         success: true,
         order: {
