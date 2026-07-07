@@ -364,12 +364,14 @@
   }
 
   function renderOrderSummary(data) {
+    const order    = data.order    || {};
+    const tracking = data.tracking || {};
     orderSummary.innerHTML = `
       <div style="display:flex;flex-wrap:wrap;gap:12px 24px;">
-        <div><strong>Order</strong><br>${data.order_name || '—'}</div>
-        <div><strong>Status</strong><br>${data.fulfillment_status || 'Unfulfilled'}</div>
-        <div><strong>AWB</strong><br>${data.awb || '—'}</div>
-        <div><strong>Courier</strong><br>${data.courier || '—'}</div>
+        <div><strong>Order</strong><br>${order.number || '—'}</div>
+        <div><strong>Status</strong><br>${order.status || order.financial_status || 'Unfulfilled'}</div>
+        <div><strong>AWB</strong><br>${tracking.awb || '—'}</div>
+        <div><strong>Courier</strong><br>${tracking.courier || '—'}</div>
       </div>
     `;
   }
@@ -422,7 +424,17 @@
       }
 
       renderOrderSummary(data);
-      renderTimeline(data.timeline);
+
+      // If order not yet shipped, show the message and skip timeline
+      if (!data.tracking) {
+        renderTimeline([]);
+        if (data.message) {
+          timeline.innerHTML = `<div class="glamhop-no-tracking">${data.message}</div>`;
+        }
+      } else {
+        renderTimeline(data.tracking.events);
+      }
+
       resultBox.hidden = false;
 
     } catch (err) {
