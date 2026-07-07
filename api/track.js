@@ -1,6 +1,7 @@
 const { verifyProxySignature } = require('../lib/verifyProxy');
 const { getOrderByNumberAndEmail, extractAWBFromOrder } = require('../lib/shopify');
-const { getTrackingByAWB } = require('../lib/shiprocket');
+const { getTrackingByAWB, getAWBByOrderNumber } = require('../lib/shiprocket');
+
 
 /**
  * App Proxy tracking endpoint.
@@ -58,31 +59,49 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // ── Step 2: Extract AWB from fulfillments ──
+    // ── Step 2: Extract AWB from Shopify fulfillments ──
     const fulfillments = extractAWBFromOrder(order);
 
-    if (!fulfillments || fulfillments.length === 0) {
-      // ── DIAGNOSTIC: flow stops here — Shiprocket is NOT called ──
-      console.log('[track] ⛔ FLOW STOPPED: no fulfillments with a tracking_number found.');
-      console.log('[track]    Shiprocket will NOT be called for this order.');
-      console.log('[track]    Returning "Not Yet Shipped" to client.');
-      return res.status(200).json({
-        success: true,
-        order: {
-          number: order.name,
-          status: 'Not Yet Shipped',
-          financial_status: order.financial_status,
-        },
-        tracking: null,
-        message: 'Your order has been confirmed but has not been shipped yet. We will update you once it is dispatched.',
-      });
+    let awb;
+    let latestFulfillment;
+
+    if (fulfillments && fulfillments.length > 0) {
+      // Happy path: Shopify has the tracking number (fulfilled natively in Shopify)
+      latestFulfillment = fulfillments[fulfillments.length - 1];
+      awb = latestFulfillment.awb;
+      console.log(`[track] AWB from Shopify fulfillment: ${awb} via ${latestFulfillment.courier}`);
+    } else {
+      // Fallback: order was shipped via Shiprocket dashboard — Shopify has no tracking_number.
+      // Query Shiprocket directly using the Shopify order name (stored as channel_order_id).
+      console.log(`[track] Shopify has no AWB for order ${order.name} — querying Shiprocket orders API`);
+      const shiprocketAWB = await getAWBByOrderNumber(order.name);
+
+      if (!shiprocketAWB) {
+        // Neither Shopify nor Shiprocket has a tracking number — order not yet dispatched
+        console.log('[track] No AWB found in Shopify or Shiprocket — order not yet dispatched.');
+        return res.status(200).json({
+          success: true,
+          order: {
+            number: order.name,
+            status: 'Not Yet Shipped',
+            financial_status: order.financial_status,
+          },
+          tracking: null,
+          message: 'Your order has been confirmed but has not been shipped yet. We will update you once it is dispatched.',
+        });
+      }
+
+      awb = shiprocketAWB.awb;
+      latestFulfillment = {
+        awb,
+        courier: shiprocketAWB.courier,
+        status: 'fulfilled',
+      };
+      console.log(`[track] AWB from Shiprocket fallback: ${awb} via ${latestFulfillment.courier}`);
     }
 
-    // Use the most recent fulfillment (last in array = most recent)
-    const latestFulfillment = fulfillments[fulfillments.length - 1];
-    const awb = latestFulfillment.awb;
+    console.log(`[track] Fetching tracking for AWB: ${awb}`);
 
-    console.log(`[track] Found AWB: ${awb} via ${latestFulfillment.courier}`);
 
     // ── Step 3: Fetch tracking from Shiprocket ──
     let trackingData;
