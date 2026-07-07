@@ -130,7 +130,7 @@
       </div>
     </div>
 
-    <!-- Tracking Result View (White Luxury Card Layout) -->
+    <!-- Tracking Result View (AfterShip layout match) -->
     <div class="glamhop-result-view" id="glamhop-result" hidden>
       <!-- Back to Search Button -->
       <button class="glamhop-btn-back" id="glamhop-btn-back-to-search">
@@ -185,13 +185,13 @@
           </div>
         </div>
 
-        <!-- Checkpoint Timezone Selector (Below progress bar) -->
-        <div class="glamhop-timezone-selector-container">
-          <span class="glamhop-timezone-selector-label">Checkpoint timezone ▼</span>
-          <select id="glamhop-timezone-select" class="glamhop-timezone-select">
-            <option value="local" selected>Local Time</option>
-            <option value="destination">Destination Time</option>
-            <option value="origin">Origin Time</option>
+        <!-- Checkpoint Timezone Selector (AfterShip style inline text selector) -->
+        <div class="glamhop-timezone-selector-row">
+          <span>Checkpoint timezone</span>
+          <select id="glamhop-timezone-select" class="glamhop-timezone-select-inline">
+            <option value="local" selected>Local Time ▼</option>
+            <option value="destination">Destination Time ▼</option>
+            <option value="origin">Origin Time ▼</option>
           </select>
         </div>
       </div>
@@ -211,7 +211,7 @@
               <!-- Dynamically populated SVG logo -->
             </div>
             <div class="glamhop-courier-meta">
-              <span class="glamhop-courier-label">Courier Name</span>
+              <span class="glamhop-courier-label">Carrier</span>
               <div class="glamhop-courier-val" id="glamhop-courier-name-val">—</div>
             </div>
           </div>
@@ -234,16 +234,6 @@
             <div class="glamhop-courier-val" id="glamhop-order-val">—</div>
           </div>
 
-          <div class="glamhop-courier-col">
-            <span class="glamhop-courier-label">Shipment Status</span>
-            <div class="glamhop-courier-val" id="glamhop-shipment-status-val">—</div>
-          </div>
-
-          <div class="glamhop-courier-col">
-            <span class="glamhop-courier-label">Courier Service</span>
-            <div class="glamhop-courier-val" id="glamhop-courier-service-val">—</div>
-          </div>
-
         </div>
       </div>
 
@@ -257,54 +247,53 @@
     width: 100%;
     padding: 60px 16px 120px;
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #ffffff;
-    color: #000000;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fa; /* Page backdrop background from AfterShip */
+    color: #222222;
   }
 
   .glamhop-tracking-container {
-    max-width: 680px;
+    max-width: 650px;
     margin: 0 auto;
   }
 
   .glamhop-tracking-header {
     text-align: center;
-    margin-bottom: 48px;
+    margin-bottom: 40px;
   }
 
   .glamhop-tracking-title {
-    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-size: 1.5rem;
     font-weight: 700;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin: 0 0 16px;
-    color: #000000;
+    margin: 0 0 12px;
+    color: #111111;
   }
 
   .glamhop-tracking-subtitle {
-    font-size: 0.95rem;
-    font-weight: 300;
-    line-height: 1.6;
-    letter-spacing: 0.02em;
+    font-size: 0.9rem;
+    font-weight: 400;
+    line-height: 1.5;
     color: #666666;
-    max-width: 500px;
+    max-width: 480px;
     margin: 0 auto;
   }
 
   /* Luxury Card Abstraction */
   .glamhop-luxury-card {
     background: #ffffff;
-    border: 1px solid #f0f0f0;
-    border-radius: 12px;
-    padding: 32px;
-    margin-bottom: 24px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.015);
     box-sizing: border-box;
   }
 
   .glamhop-form-card {
-    border: 1px solid #e5e5e5;
-    padding-top: 16px; /* give space for tabs */
+    border: 1px solid #dddddd;
+    padding-top: 16px;
   }
 
   /* Luxury Tabs Styling */
@@ -312,21 +301,21 @@
     display: flex;
     position: relative;
     border-bottom: 1px solid #f0f0f0;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
     gap: 8px;
   }
 
   .glamhop-tab-btn {
     background: none;
     border: none;
-    padding: 14px 16px;
-    font-size: 0.78rem;
+    padding: 12px 14px;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     color: #888888;
     cursor: pointer;
-    transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: color 0.25s ease;
     position: relative;
   }
 
@@ -338,9 +327,9 @@
     position: absolute;
     bottom: -1px;
     left: 0;
-    height: 1px;
+    height: 1.5px;
     background: #000000;
-    transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1), width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1), width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   /* Back to Search Button */
@@ -348,16 +337,16 @@
     background: none;
     border: none;
     padding: 0;
-    color: #666666;
-    font-size: 0.78rem;
+    color: #757575;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 28px;
+    gap: 6px;
+    margin-bottom: 20px;
     transition: color 0.2s ease;
   }
 
@@ -375,21 +364,21 @@
   .glamhop-tracking-form {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 24px;
   }
 
   .glamhop-field-group {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
 
   .glamhop-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #000000;
+    letter-spacing: 0.08em;
+    color: #333333;
   }
 
   .glamhop-input-wrapper {
@@ -400,40 +389,38 @@
 
   .glamhop-input-prefix {
     position: absolute;
-    left: 18px;
-    font-size: 1.05rem;
+    left: 14px;
+    font-size: 1rem;
     font-weight: 400;
-    color: #999999;
+    color: #888888;
   }
 
   .glamhop-input {
     width: 100%;
-    padding: 16px 18px 16px 36px;
-    font-size: 1rem;
+    padding: 14px 16px 14px 32px;
+    font-size: 0.95rem;
     font-weight: 400;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
     background: #ffffff;
-    color: #000000;
+    color: #111111;
     box-sizing: border-box;
-    transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: border-color 0.2s ease;
     outline: none;
     -webkit-appearance: none;
   }
 
   .glamhop-input-no-prefix {
-    padding-left: 18px;
+    padding-left: 14px;
   }
 
   .glamhop-input:focus {
     border-color: #000000;
-    box-shadow: 0 0 0 1px #000000;
   }
 
   .glamhop-field-hint {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: #888888;
-    font-weight: 300;
   }
 
   /* Submit Button */
@@ -443,22 +430,21 @@
     justify-content: center;
     gap: 12px;
     width: 100%;
-    padding: 18px 28px;
-    font-size: 0.9rem;
+    padding: 16px 24px;
+    font-size: 0.85rem;
     font-weight: 600;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     background: #000000;
     color: #ffffff;
     border: 1px solid #000000;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.25s ease, color 0.25s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   .glamhop-btn-submit:hover {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: #333333;
   }
 
   .glamhop-btn-submit:disabled {
@@ -478,11 +464,6 @@
     animation: glamhop-spin 0.6s linear infinite;
   }
 
-  .glamhop-btn-submit:hover .glamhop-btn-loader {
-    border: 2px solid rgba(0, 0, 0, 0.15);
-    border-top-color: #000000;
-  }
-
   .glamhop-btn-submit.glamhop-btn--loading .glamhop-btn-loader {
     display: block;
   }
@@ -495,7 +476,7 @@
     to { transform: rotate(360deg); }
   }
 
-  /* Error Message Alert Box */
+  /* Error Alert Box */
   .glamhop-error-alert {
     display: none;
   }
@@ -504,49 +485,48 @@
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    padding: 16px 20px;
-    background: #fafafa;
-    border: 1px solid #c53030;
-    border-radius: 8px;
-    color: #c53030;
-    font-size: 0.95rem;
-    margin-bottom: 24px;
+    padding: 14px 18px;
+    background: #fff8f8;
+    border: 1px solid #fecdd3;
+    border-radius: 6px;
+    color: #be123c;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
   }
 
   .glamhop-error-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
     margin-top: 1px;
   }
 
-  /* Luxury Hero Section */
+  /* Hero Section (Match AfterShip layout exactly) */
   .glamhop-hero-card {
-    border-color: #e5e5e5;
-    background: #ffffff;
+    border: 1px solid #e0e0e0;
   }
 
   .glamhop-hero-tag {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: #666666;
+    letter-spacing: 0.08em;
+    color: #757575;
   }
 
   .glamhop-hero-date-group {
     display: flex;
     flex-direction: column;
-    margin-top: 6px;
+    margin-top: 4px;
   }
 
   .glamhop-hero-date {
-    font-size: clamp(2rem, 5.5vw, 3rem);
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
     font-weight: 700;
-    letter-spacing: -0.04em;
-    color: #000000;
+    letter-spacing: -0.02em;
+    color: #111111;
     margin: 0;
-    line-height: 1.2;
+    line-height: 1.15;
   }
 
   .glamhop-hero-date span.edd-date {
@@ -555,44 +535,37 @@
 
   .glamhop-hero-date span.edd-time {
     display: block;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 400;
     color: #555555;
     margin-top: 4px;
-    letter-spacing: -0.01em;
   }
 
   .glamhop-hero-status-container {
-    margin: 20px 0 36px;
+    margin: 16px 0 28px;
   }
 
   .glamhop-hero-status-msg {
-    display: inline-block;
-    padding: 6px 14px;
-    background: #f5f5f5;
-    border: 1px solid #e5e5e5;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 1.15rem;
+    font-weight: 700;
     color: #000000;
   }
 
-  /* Dynamic 6-Stage Progress Bar */
+  /* Horizontal progress bar matching AfterShip style */
   .glamhop-progress-section {
     position: relative;
     padding: 10px 0 20px;
+    margin-bottom: 8px;
   }
 
   .glamhop-progress-line-track {
     position: absolute;
-    top: 15px;
+    top: 14px;
     left: 8.33%;
     right: 8.33%;
-    height: 2px;
-    background: #f0f0f0;
-    border-radius: 1px;
+    height: 3px;
+    background: #eaeaea;
+    border-radius: 1.5px;
     z-index: 1;
   }
 
@@ -600,7 +573,7 @@
     height: 100%;
     width: 0%;
     background: #000000;
-    border-radius: 1px;
+    border-radius: 1.5px;
     transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -620,14 +593,14 @@
   }
 
   .glamhop-step-dot {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     background: #ffffff;
     border: 2px solid #eaeaea;
     box-shadow: 0 0 0 2px #ffffff;
     box-sizing: border-box;
-    transition: border-color 0.4s ease, background-color 0.4s ease;
+    transition: border-color 0.3s, background-color 0.3s;
     margin-bottom: 12px;
   }
 
@@ -639,23 +612,23 @@
   .glamhop-progress-step.current .glamhop-step-dot {
     border-color: #000000;
     background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
     animation: glamhop-pulse-dot 2.5s infinite;
   }
 
   @keyframes glamhop-pulse-dot {
-    0% { box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2); }
-    70% { box-shadow: 0 0 0 8px rgba(0, 0, 0, 0); }
+    0% { box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.15); }
+    70% { box-shadow: 0 0 0 6px rgba(0, 0, 0, 0); }
     100% { box-shadow: 0 0 0 0px rgba(0, 0, 0, 0); }
   }
 
   .glamhop-step-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 600;
-    color: #a0a0a0;
+    color: #888888;
     text-align: center;
-    line-height: 1.3;
-    transition: color 0.4s ease;
+    line-height: 1.25;
+    transition: color 0.3s;
     letter-spacing: -0.01em;
   }
 
@@ -663,47 +636,41 @@
     color: #000000;
   }
 
-  /* Timezone selector section styling */
-  .glamhop-timezone-selector-container {
+  /* Timezone Selector Row (AfterShip Match) */
+  .glamhop-timezone-selector-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 24px;
-    border-top: 1px solid #f5f5f5;
-    padding-top: 18px;
+    gap: 6px;
+    margin-top: 18px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 14px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #757575;
   }
 
-  .glamhop-timezone-selector-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #888888;
-  }
-
-  .glamhop-timezone-select {
-    background: #ffffff;
+  .glamhop-timezone-select-inline {
+    background: none;
     border: none;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: #000000;
     outline: none;
     cursor: pointer;
-    padding: 2px 4px;
+    padding: 0;
+    margin: 0;
   }
 
   /* Timeline Segment Card */
   .glamhop-card-section-title {
     font-size: 0.85rem;
     font-weight: 700;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin: 0 0 28px;
-    color: #000000;
+    margin: 0 0 24px;
+    color: #111111;
     border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 16px;
+    padding-bottom: 12px;
   }
 
   .glamhop-timeline {
@@ -712,24 +679,24 @@
 
   .glamhop-timeline-item {
     display: flex;
-    gap: 32px;
+    gap: 20px;
     position: relative;
-    padding-bottom: 32px;
+    padding-bottom: 24px;
   }
 
   .glamhop-timeline-item:last-child {
     padding-bottom: 0;
   }
 
-  /* Timeline Line connection */
+  /* Timeline Connector Line */
   .glamhop-timeline-item::after {
     content: '';
     position: absolute;
-    left: 87px;
+    left: 81px;
     top: 24px;
     bottom: 0;
     width: 1px;
-    background: #eeeeee;
+    background: #e0e0e0;
   }
 
   .glamhop-timeline-item:last-child::after {
@@ -737,26 +704,26 @@
   }
 
   .glamhop-timeline-left {
-    width: 72px;
+    width: 68px;
     flex-shrink: 0;
     text-align: right;
+    padding-top: 2px;
   }
 
   .glamhop-timeline-date-val {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    color: #000000;
-    letter-spacing: -0.01em;
+    color: #111111;
   }
 
   .glamhop-timeline-time-val {
-    font-size: 0.75rem;
-    color: #888888;
-    margin-top: 3px;
+    font-size: 0.72rem;
+    color: #757575;
+    margin-top: 2px;
   }
 
   .glamhop-timeline-center {
-    width: 30px;
+    width: 26px;
     position: relative;
     display: flex;
     justify-content: center;
@@ -767,10 +734,10 @@
     height: 8px;
     border-radius: 50%;
     background: #ffffff;
-    border: 2px solid #cccccc;
-    box-shadow: 0 0 0 3px #ffffff;
+    border: 2px solid #b0b0b0;
+    box-shadow: 0 0 0 2px #ffffff;
     z-index: 2;
-    margin-top: 5px;
+    margin-top: 6px;
   }
 
   .glamhop-timeline-item:first-child .glamhop-timeline-marker {
@@ -786,56 +753,55 @@
   .glamhop-timeline-event-title {
     font-size: 0.9rem;
     font-weight: 700;
-    color: #000000;
+    color: #111111;
     margin-bottom: 4px;
   }
 
   .glamhop-timeline-event-desc {
-    font-size: 0.85rem;
-    color: #666666;
-    line-height: 1.5;
+    font-size: 0.82rem;
+    color: #555555;
+    line-height: 1.45;
   }
 
   .glamhop-timeline-courier-name {
     display: inline-block;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    background: #f5f5f5;
-    color: #666666;
-    padding: 3px 6px;
+    background: #f0f0f0;
+    color: #555555;
+    padding: 2px 5px;
     border-radius: 2px;
-    margin-top: 8px;
+    margin-top: 6px;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
   }
 
   /* Courier Card Grid */
   .glamhop-courier-grid {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 20px;
   }
 
   .glamhop-courier-col {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
   }
 
   .glamhop-courier-header {
     flex-direction: row;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     border-bottom: 1px solid #f5f5f5;
-    padding-bottom: 20px;
+    padding-bottom: 14px;
   }
 
   .glamhop-carrier-logo-circle {
-    width: 42px;
-    height: 42px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #fafafa;
-    border: 1px solid #eaeaea;
+    border: 1px solid #dddddd;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -843,47 +809,47 @@
   }
 
   .glamhop-courier-logo-svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     color: #111111;
   }
 
   .glamhop-courier-meta {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
   }
 
   .glamhop-courier-label {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #888888;
+    letter-spacing: 0.05em;
+    color: #757575;
   }
 
   .glamhop-courier-val {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    color: #000000;
+    color: #111111;
   }
 
   .glamhop-copy-container {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
 
   .glamhop-btn-copy {
     background: none;
     border: none;
-    padding: 6px;
-    color: #888888;
+    padding: 4px;
+    color: #757575;
     cursor: pointer;
     display: flex;
     align-items: center;
     position: relative;
-    border-radius: 4px;
+    border-radius: 3px;
     transition: background-color 0.2s, color 0.2s;
   }
 
@@ -893,8 +859,8 @@
   }
 
   .glamhop-copy-icon {
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
   }
 
   .glamhop-toast-tooltip {
@@ -904,10 +870,10 @@
     transform: translate(-50%, -6px) scale(0.95);
     background: #000000;
     color: #ffffff;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 3px;
+    padding: 3px 6px;
+    border-radius: 2px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s, transform 0.2s;
@@ -930,10 +896,10 @@
   }
 
   .skeleton-line {
-    height: 14px;
+    height: 12px;
     background: #f0f0f0;
     border-radius: 4px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
 
   .skeleton-line.short {
@@ -946,26 +912,26 @@
 
   .skeleton-line.large {
     width: 90%;
-    height: 24px;
-    margin-bottom: 18px;
+    height: 20px;
+    margin-bottom: 14px;
   }
 
   .skeleton-progress-bar {
-    height: 4px;
+    height: 3px;
     background: #f0f0f0;
-    border-radius: 2px;
-    margin: 32px 0 12px;
+    border-radius: 1.5px;
+    margin: 28px 0 10px;
   }
 
   .skeleton-timeline-item {
     display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 14px;
+    margin-bottom: 20px;
   }
 
   .skeleton-circle {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: #f0f0f0;
     flex-shrink: 0;
@@ -975,12 +941,12 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
 
   .skeleton-details-grid {
     display: flex;
-    gap: 32px;
+    gap: 24px;
   }
 
   .skeleton-detail-col {
@@ -1034,7 +1000,7 @@
       font-size: 0.58rem;
     }
     .glamhop-timeline-item::after {
-      left: 77px;
+      left: 81px;
     }
   }
 </style>
@@ -1061,8 +1027,6 @@
   const courierLogo = document.getElementById('glamhop-courier-logo');
   const awbVal = document.getElementById('glamhop-awb-val');
   const orderVal = document.getElementById('glamhop-order-val');
-  const shipmentStatusVal = document.getElementById('glamhop-shipment-status-val');
-  const courierServiceVal = document.getElementById('glamhop-courier-service-val');
   const copyBtn = document.getElementById('glamhop-copy-awb');
 
   // Stores currently fetched active tracking data for timezone re-evaluation
@@ -1167,7 +1131,6 @@
       const dateText = d.toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'short',
-        year: 'numeric',
         ...options
       });
 
@@ -1246,7 +1209,7 @@
       return `
         <div class="glamhop-timeline-item">
           <div class="glamhop-timeline-left">
-            <div class="glamhop-timeline-date-val">${parsed.date.split(', ')[0]}</div>
+            <div class="glamhop-timeline-date-val">${parsed.date}</div>
             <div class="glamhop-timeline-time-val">${parsed.time}</div>
           </div>
           <div class="glamhop-timeline-center">
@@ -1432,8 +1395,6 @@
       renderCourierLogo(tracking.courier);
       awbVal.textContent = tracking.awb || '—';
       orderVal.textContent = order.number || '—';
-      shipmentStatusVal.textContent = getFriendlyStatusLabel(finalStatusText);
-      courierServiceVal.textContent = tracking.courier || 'Standard Ground';
 
       showResultsView();
       toggleLoading(false);
