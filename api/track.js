@@ -58,10 +58,37 @@ module.exports = async function handler(req, res) {
         },
       });
     } catch (shiprocketErr) {
-      console.error('[track] Shiprocket direct AWB tracking lookup failed:', shiprocketErr.message);
-      return res.status(404).json({
+      const code = shiprocketErr.statusCode || 0;
+      console.error(`[track] AWB lookup failed (statusCode=${code}):`, shiprocketErr.message);
+
+      // 401 / 403 — authentication / account blocked
+      if (code === 401 || code === 403) {
+        return res.status(503).json({
+          success: false,
+          error: 'Tracking service authentication failed. Please try again in a few minutes.',
+        });
+      }
+
+      // 404 — AWB genuinely not found in Shiprocket
+      if (code === 404) {
+        return res.status(404).json({
+          success: false,
+          error: 'Tracking number not found. Please check the number and try again.',
+        });
+      }
+
+      // 5xx or network / timeout — transient
+      if (code >= 500 || code === 0) {
+        return res.status(503).json({
+          success: false,
+          error: 'Tracking service is temporarily unavailable. Please try again in a few minutes.',
+        });
+      }
+
+      // Fallback for any other error code
+      return res.status(500).json({
         success: false,
-        error: 'Tracking number not found.',
+        error: 'An unexpected error occurred while fetching tracking data. Please try again.',
       });
     }
   }
