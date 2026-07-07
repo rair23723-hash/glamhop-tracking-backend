@@ -1,7 +1,7 @@
 {% comment %}
   GlamHop — Track Order Page
   Served via Shopify App Proxy → rendered inside Fabric theme
-  White Luxury Theme, Mobile-First, Skeleton Loaders, Premium AfterShip UX
+  White Luxury Theme, Mobile-First, AfterShip Match, Premium Polish
 {% endcomment %}
 
 <div class="glamhop-tracking-wrapper">
@@ -143,7 +143,7 @@
       <!-- Large Hero Section -->
       <div class="glamhop-luxury-card glamhop-hero-card">
         <div class="glamhop-hero-meta">
-          <span class="glamhop-hero-tag">Estimated Delivery</span>
+          <span class="glamhop-hero-tag">Estimated delivery</span>
           <div class="glamhop-hero-date-group">
             <h2 class="glamhop-hero-date" id="glamhop-edd-date">—</h2>
           </div>
@@ -152,7 +152,7 @@
           <div class="glamhop-hero-status-msg" id="glamhop-status-message">—</div>
         </div>
 
-        <!-- Horizontal Shipment Progress Bar (7 Steps) -->
+        <!-- Horizontal Shipment Progress Bar (6 Stages) -->
         <div class="glamhop-progress-section">
           <div class="glamhop-progress-line-track">
             <div class="glamhop-progress-line-fill" id="glamhop-progress-fill"></div>
@@ -160,48 +160,45 @@
           <div class="glamhop-progress-steps">
             <div class="glamhop-progress-step" data-step="0">
               <div class="glamhop-step-dot"></div>
-              <span class="glamhop-step-label">Order Placed</span>
+              <span class="glamhop-step-label">To be processed</span>
             </div>
             <div class="glamhop-progress-step" data-step="1">
               <div class="glamhop-step-dot"></div>
-              <span class="glamhop-step-label">Confirmed</span>
+              <span class="glamhop-step-label">Prepared</span>
             </div>
             <div class="glamhop-progress-step" data-step="2">
               <div class="glamhop-step-dot"></div>
-              <span class="glamhop-step-label">Packed</span>
+              <span class="glamhop-step-label">Shipping soon</span>
             </div>
             <div class="glamhop-progress-step" data-step="3">
               <div class="glamhop-step-dot"></div>
-              <span class="glamhop-step-label">Shipped</span>
+              <span class="glamhop-step-label">In transit</span>
             </div>
             <div class="glamhop-progress-step" data-step="4">
               <div class="glamhop-step-dot"></div>
-              <span class="glamhop-step-label">In Transit</span>
+              <span class="glamhop-step-label">Out for delivery</span>
             </div>
             <div class="glamhop-progress-step" data-step="5">
-              <div class="glamhop-step-dot"></div>
-              <span class="glamhop-step-label">Out For Delivery</span>
-            </div>
-            <div class="glamhop-progress-step" data-step="6">
               <div class="glamhop-step-dot"></div>
               <span class="glamhop-step-label">Delivered</span>
             </div>
           </div>
         </div>
+
+        <!-- Checkpoint Timezone Selector (Below progress bar) -->
+        <div class="glamhop-timezone-selector-container">
+          <span class="glamhop-timezone-selector-label">Checkpoint timezone ▼</span>
+          <select id="glamhop-timezone-select" class="glamhop-timezone-select">
+            <option value="local" selected>Local Time</option>
+            <option value="destination">Destination Time</option>
+            <option value="origin">Origin Time</option>
+          </select>
+        </div>
       </div>
 
-      <!-- Checkpoint Timezone Selector & Shipment Timeline Card -->
+      <!-- Shipment Timeline Card -->
       <div class="glamhop-luxury-card glamhop-timeline-card">
-        <div class="glamhop-timeline-header-group">
-          <h3 class="glamhop-card-section-title">Shipment Timeline</h3>
-          <div class="glamhop-timezone-selector-container">
-            <select id="glamhop-timezone-select" class="glamhop-timezone-select">
-              <option value="local" selected>Local Time</option>
-              <option value="carrier">Carrier Timezone (IST)</option>
-              <option value="utc">UTC</option>
-            </select>
-          </div>
-        </div>
+        <h3 class="glamhop-card-section-title">Shipment Timeline</h3>
         <div class="glamhop-timeline" id="glamhop-timeline"></div>
       </div>
 
@@ -500,6 +497,10 @@
 
   /* Error Message Alert Box */
   .glamhop-error-alert {
+    display: none;
+  }
+
+  .glamhop-error-alert:not([hidden]) {
     display: flex;
     align-items: flex-start;
     gap: 12px;
@@ -540,7 +541,7 @@
   }
 
   .glamhop-hero-date {
-    font-size: clamp(1.8rem, 4.5vw, 2.4rem);
+    font-size: clamp(2rem, 5.5vw, 3rem);
     font-weight: 700;
     letter-spacing: -0.04em;
     color: #000000;
@@ -554,7 +555,7 @@
 
   .glamhop-hero-date span.edd-time {
     display: block;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 400;
     color: #555555;
     margin-top: 4px;
@@ -578,7 +579,7 @@
     color: #000000;
   }
 
-  /* Dynamic 7-Stage Progress Bar */
+  /* Dynamic 6-Stage Progress Bar */
   .glamhop-progress-section {
     position: relative;
     padding: 10px 0 20px;
@@ -587,8 +588,8 @@
   .glamhop-progress-line-track {
     position: absolute;
     top: 15px;
-    left: 7.14%;
-    right: 7.14%;
+    left: 8.33%;
+    right: 8.33%;
     height: 2px;
     background: #f0f0f0;
     border-radius: 1px;
@@ -614,7 +615,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 14.28%;
+    width: 16.66%;
     position: relative;
   }
 
@@ -649,66 +650,60 @@
   }
 
   .glamhop-step-label {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: #a0a0a0;
     text-align: center;
     line-height: 1.3;
     transition: color 0.4s ease;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
   }
 
   .glamhop-progress-step.active .glamhop-step-label {
     color: #000000;
   }
 
-  /* Timeline Segment Card */
-  .glamhop-timeline-header-group {
+  /* Timezone selector section styling */
+  .glamhop-timezone-selector-container {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    border-bottom: 1px solid #f0f0f0;
-    margin-bottom: 28px;
-    padding-bottom: 12px;
-    flex-wrap: wrap;
-    gap: 12px;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    border-top: 1px solid #f5f5f5;
+    padding-top: 18px;
   }
 
+  .glamhop-timezone-selector-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888888;
+  }
+
+  .glamhop-timezone-select {
+    background: #ffffff;
+    border: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #000000;
+    outline: none;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+
+  /* Timeline Segment Card */
   .glamhop-card-section-title {
     font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    margin: 0;
+    margin: 0 0 28px;
     color: #000000;
-  }
-
-  .glamhop-timezone-selector-container {
-    display: flex;
-    align-items: center;
-  }
-
-  .glamhop-timezone-select {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    padding: 6px 24px 6px 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #333333;
-    outline: none;
-    cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23333333'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 10px;
-    -webkit-appearance: none;
-  }
-
-  .glamhop-timezone-select:focus {
-    border-color: #000000;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 16px;
   }
 
   .glamhop-timeline {
@@ -1029,14 +1024,14 @@
 
   @media (max-width: 540px) {
     .glamhop-progress-line-track {
-      left: 7.14%;
-      right: 7.14%;
+      left: 8.33%;
+      right: 8.33%;
     }
     .glamhop-progress-step {
-      width: 14.28%;
+      width: 16.66%;
     }
     .glamhop-step-label {
-      font-size: 0.52rem;
+      font-size: 0.58rem;
     }
     .glamhop-timeline-item::after {
       left: 77px;
@@ -1121,9 +1116,9 @@
   }
 
   // Parses Estimated Delivery based on requested premium format:
-  // "Today at 8:00 PM", "Tomorrow by 6:30 PM", "12 Jul 2026 before 9 PM"
+  // "Today at 8:00 PM", "Tomorrow", "12 Jul 2026"
   function formatEstimatedDelivery(eddStr) {
-    if (!eddStr) return 'Estimated delivery unavailable.';
+    if (!eddStr) return 'Estimated delivery unavailable';
     try {
       const d = new Date(eddStr);
       if (isNaN(d.getTime())) return eddStr;
@@ -1133,28 +1128,26 @@
       tomorrow.setDate(today.getDate() + 1);
 
       let dateText = '';
-      let prefix = 'before';
+      let suffix = '';
 
       if (d.toDateString() === today.toDateString()) {
         dateText = 'Today';
-        prefix = 'at';
+        const timePart = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        suffix = ` at ${timePart}`;
       } else if (d.toDateString() === tomorrow.toDateString()) {
         dateText = 'Tomorrow';
-        prefix = 'by';
       } else {
-        // e.g. "12 Jul 2026"
         const options = { day: 'numeric', month: 'short', year: 'numeric' };
-        dateText = d.toLocaleDateString('en-GB', options);
+        dateText = d.toLocaleDateString('en-GB', options); // e.g. "12 Jul 2026"
       }
 
-      const timeText = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-      return `<span class="edd-date">${dateText}</span> <span class="edd-time">${prefix} ${timeText}</span>`;
+      return `<span class="edd-date">${dateText}</span><span class="edd-time">${suffix}</span>`;
     } catch {
       return eddStr;
     }
   }
 
-  // Format Checkpoint Date/Time using timezone mode: local, utc, carrier (IST)
+  // Format Checkpoint Date/Time using timezone mode: local, destination (IST), origin (IST)
   function formatEventDateTime(dateStr, tzMode) {
     if (!dateStr) return { date: '—', time: '—' };
     try {
@@ -1166,8 +1159,8 @@
       let options = {};
       if (tzMode === 'utc') {
         options.timeZone = 'UTC';
-      } else if (tzMode === 'carrier') {
-        // Shiprocket carrier timezone defaults to IST
+      } else if (tzMode === 'destination' || tzMode === 'origin') {
+        // Default carrier/origin/destination timezone to Indian Standard Time (IST)
         options.timeZone = 'Asia/Kolkata';
       }
 
@@ -1204,31 +1197,29 @@
   function updateProgressBar(status) {
     const cleanStatus = (status || '').toLowerCase().replace(/\s+/g, '');
     
-    let activeIndex = 0; // 7 stages: 0: Order Placed, 1: Confirmed, 2: Packed, 3: Shipped, 4: In Transit, 5: Out For Delivery, 6: Delivered
+    let activeIndex = 0; // 6 stages: 0: To be processed, 1: Prepared, 2: Shipping soon, 3: In transit, 4: Out for delivery, 5: Delivered
     
-    if (cleanStatus.includes('pending') || cleanStatus.includes('received') || cleanStatus.includes('orderplaced') || cleanStatus.includes('tobeprocessed')) {
+    if (cleanStatus.includes('pending') || cleanStatus.includes('confirmed') || cleanStatus.includes('received') || cleanStatus.includes('tobeprocessed')) {
       activeIndex = 0;
-    } else if (cleanStatus.includes('confirm') || cleanStatus.includes('paid')) {
-      activeIndex = 1;
     } else if (cleanStatus.includes('pack') || cleanStatus.includes('prepare') || cleanStatus.includes('ready')) {
+      activeIndex = 1;
+    } else if (cleanStatus.includes('shippingsoon') || cleanStatus.includes('readyforreceive') || cleanStatus.includes('shipped') || cleanStatus.includes('dispatched')) {
       activeIndex = 2;
-    } else if (cleanStatus.includes('shipped') || cleanStatus.includes('pickup') || cleanStatus.includes('dispatched') || cleanStatus.includes('readyforreceive')) {
+    } else if (cleanStatus.includes('transit') || cleanStatus.includes('depart') || cleanStatus.includes('carrier') || cleanStatus.includes('facility') || cleanStatus.includes('pickup')) {
       activeIndex = 3;
-    } else if (cleanStatus.includes('transit') || cleanStatus.includes('depart') || cleanStatus.includes('facility') || cleanStatus.includes('carrier')) {
-      activeIndex = 4;
     } else if (cleanStatus.includes('out') || cleanStatus.includes('delivery') || cleanStatus.includes('delivering')) {
-      // Check for final 'delivered' vs active 'out for delivery'
+      // Exclude final 'delivered'
       if (cleanStatus.includes('delivered')) {
-        activeIndex = 6;
-      } else {
         activeIndex = 5;
+      } else {
+        activeIndex = 4;
       }
     } else if (cleanStatus.includes('delivered')) {
-      activeIndex = 6;
+      activeIndex = 5;
     }
 
-    // Set Fill Width: 0% to 100% across the 6 intervals of the 7 stages
-    const fillPercent = (activeIndex / 6) * 100;
+    // Set Fill Width: 0% to 100% across the 5 intervals of the 6 stages
+    const fillPercent = (activeIndex / 5) * 100;
     progressFill.style.width = `${fillPercent}%`;
 
     progressSteps.forEach((step, idx) => {
@@ -1255,7 +1246,7 @@
       return `
         <div class="glamhop-timeline-item">
           <div class="glamhop-timeline-left">
-            <div class="glamhop-timeline-date-val">${parsed.date}</div>
+            <div class="glamhop-timeline-date-val">${parsed.date.split(', ')[0]}</div>
             <div class="glamhop-timeline-time-val">${parsed.time}</div>
           </div>
           <div class="glamhop-timeline-center">
@@ -1366,6 +1357,25 @@
     }
   });
 
+  // Determines dynamic shipment header status message based on AfterShip requirements:
+  // "Your order is on the way", "Delivered", "Out for delivery", "Cancelled", "Exception"
+  function getShipmentStatusMessage(status) {
+    const s = (status || '').toLowerCase();
+    if (s.includes('delivered')) {
+      return 'Delivered';
+    }
+    if (s.includes('out') || s.includes('delivery')) {
+      return 'Out for delivery';
+    }
+    if (s.includes('cancel') || s.includes('void') || s.includes('return')) {
+      return 'Cancelled';
+    }
+    if (s.includes('exception') || s.includes('hold') || s.includes('fail') || s.includes('undelivered')) {
+      return 'Exception';
+    }
+    return 'Your order is on the way';
+  }
+
   // Common tracking fetch handler
   async function fetchTrackingData(queryParams) {
     toggleLoading(true);
@@ -1404,24 +1414,13 @@
       if (tracking.estimated_delivery) {
         eddDate.innerHTML = formatEstimatedDelivery(tracking.estimated_delivery);
       } else {
-        eddDate.textContent = 'Estimated delivery unavailable.';
+        eddDate.textContent = 'Estimated delivery unavailable';
       }
 
-      // 2. Status banner message
-      const normStatus = finalStatusText.toLowerCase();
-      if (normStatus.includes('deliver')) {
-        statusMessage.textContent = 'Your order has been delivered.';
-      } else if (normStatus.includes('out') || normStatus.includes('delivery')) {
-        statusMessage.textContent = 'Your order is out for delivery!';
-      } else if (normStatus.includes('transit') || normStatus.includes('depart') || normStatus.includes('carrier') || normStatus.includes('facility') || normStatus.includes('pickup')) {
-        statusMessage.textContent = 'Your order is on the way.';
-      } else if (normStatus.includes('pack') || normStatus.includes('prepare') || normStatus.includes('ready')) {
-        statusMessage.textContent = 'Your order is prepared and ready to dispatch.';
-      } else {
-        statusMessage.textContent = 'We are processing your order.';
-      }
+      // 2. Bold Shipment banner message
+      statusMessage.textContent = getShipmentStatusMessage(finalStatusText);
 
-      // 3. Update progress bar
+      // 3. Update progress bar (6 stages)
       updateProgressBar(finalStatusText);
 
       // 4. Render shipment timeline

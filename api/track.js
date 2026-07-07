@@ -32,7 +32,38 @@ module.exports = async function handler(req, res) {
   }
 
   // ── Input validation ──
-  const { order_number, email } = req.query;
+  const { order_number, email, awb } = req.query;
+
+  // Direct AWB Lookup Tab Support
+  if (awb && awb.trim()) {
+    const cleanAwb = awb.trim();
+    try {
+      console.log(`[track] Direct AWB tracking lookup requested for AWB: ${cleanAwb}`);
+      const trackingData = await getTrackingByAWB(cleanAwb);
+
+      return res.status(200).json({
+        success: true,
+        order: {
+          number: '—',
+          status: trackingData.current_status || 'In Transit',
+          financial_status: 'paid',
+        },
+        tracking: {
+          courier: trackingData.courier,
+          awb: trackingData.awb,
+          tracking_url: trackingData.tracking_url,
+          estimated_delivery: trackingData.estimated_delivery,
+          events: trackingData.events,
+        },
+      });
+    } catch (shiprocketErr) {
+      console.error('[track] Shiprocket direct AWB tracking lookup failed:', shiprocketErr.message);
+      return res.status(404).json({
+        success: false,
+        error: 'Tracking number not found.',
+      });
+    }
+  }
 
   if (!order_number || !order_number.trim()) {
     return res.status(400).json({ success: false, error: 'Order number is required.' });
@@ -46,6 +77,7 @@ module.exports = async function handler(req, res) {
   if (!emailRegex.test(email.trim())) {
     return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
   }
+
 
   try {
     // ── Step 1: Look up order in Shopify Admin API ──
