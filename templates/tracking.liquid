@@ -1,7 +1,7 @@
 {% comment %}
   GlamHop — Track Order Page
   Served via Shopify App Proxy → rendered inside Fabric theme
-  White Luxury Theme, Mobile-First, Skeleton Loaders, Premium Polish
+  White Luxury Theme, Mobile-First, Skeleton Loaders, Premium AfterShip UX
 {% endcomment %}
 
 <div class="glamhop-tracking-wrapper">
@@ -15,38 +15,65 @@
 
     <!-- Luxury Form Card -->
     <div class="glamhop-luxury-card glamhop-form-card">
+      <!-- Tabs Selector -->
+      <div class="glamhop-tabs">
+        <button class="glamhop-tab-btn active" type="button" id="glamhop-tab-order">Order Number</button>
+        <button class="glamhop-tab-btn" type="button" id="glamhop-tab-tracking">Tracking Number</button>
+        <div class="glamhop-tab-indicator"></div>
+      </div>
+
       <form class="glamhop-tracking-form" id="glamhop-track-form" novalidate>
-        <div class="glamhop-field-group">
-          <label class="glamhop-label" for="glamhop-order-number">Order Number</label>
-          <div class="glamhop-input-wrapper">
-            <span class="glamhop-input-prefix">#</span>
-            <input
-              class="glamhop-input"
-              type="text"
-              id="glamhop-order-number"
-              name="order_number"
-              placeholder="1003"
-              autocomplete="off"
-              required
-            />
+        
+        <!-- Order Number + Email Inputs -->
+        <div id="glamhop-fields-order-group">
+          <div class="glamhop-field-group" style="margin-bottom: 20px;">
+            <label class="glamhop-label" for="glamhop-order-number">Order Number</label>
+            <div class="glamhop-input-wrapper">
+              <span class="glamhop-input-prefix">#</span>
+              <input
+                class="glamhop-input"
+                type="text"
+                id="glamhop-order-number"
+                name="order_number"
+                placeholder="1003"
+                autocomplete="off"
+              />
+            </div>
+            <span class="glamhop-field-hint">Found in your order confirmation email</span>
           </div>
-          <span class="glamhop-field-hint">Found in your order confirmation email</span>
+
+          <div class="glamhop-field-group">
+            <label class="glamhop-label" for="glamhop-email">Email Address</label>
+            <div class="glamhop-input-wrapper">
+              <input
+                class="glamhop-input glamhop-input-no-prefix"
+                type="email"
+                id="glamhop-email"
+                name="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+              />
+            </div>
+            <span class="glamhop-field-hint">Use the email you placed the order with</span>
+          </div>
         </div>
 
-        <div class="glamhop-field-group">
-          <label class="glamhop-label" for="glamhop-email">Email Address</label>
-          <div class="glamhop-input-wrapper">
-            <input
-              class="glamhop-input glamhop-input-no-prefix"
-              type="email"
-              id="glamhop-email"
-              name="email"
-              placeholder="you@example.com"
-              autocomplete="email"
-              required
-            />
+        <!-- Tracking Number Input -->
+        <div id="glamhop-fields-tracking-group" hidden>
+          <div class="glamhop-field-group">
+            <label class="glamhop-label" for="glamhop-awb-input">Tracking Number (AWB)</label>
+            <div class="glamhop-input-wrapper">
+              <input
+                class="glamhop-input glamhop-input-no-prefix"
+                type="text"
+                id="glamhop-awb-input"
+                name="awb"
+                placeholder="e.g. 370604336417"
+                autocomplete="off"
+              />
+            </div>
+            <span class="glamhop-field-hint">Enter your Air Waybill or Tracking code</span>
           </div>
-          <span class="glamhop-field-hint">Use the email you placed the order with</span>
         </div>
 
         <button class="glamhop-btn-submit" type="submit" id="glamhop-submit-btn">
@@ -105,6 +132,13 @@
 
     <!-- Tracking Result View (White Luxury Card Layout) -->
     <div class="glamhop-result-view" id="glamhop-result" hidden>
+      <!-- Back to Search Button -->
+      <button class="glamhop-btn-back" id="glamhop-btn-back-to-search">
+        <svg class="glamhop-back-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Search
+      </button>
 
       <!-- Large Hero Section -->
       <div class="glamhop-luxury-card glamhop-hero-card">
@@ -112,14 +146,13 @@
           <span class="glamhop-hero-tag">Estimated Delivery</span>
           <div class="glamhop-hero-date-group">
             <h2 class="glamhop-hero-date" id="glamhop-edd-date">—</h2>
-            <div class="glamhop-hero-time" id="glamhop-edd-time"></div>
           </div>
         </div>
         <div class="glamhop-hero-status-container">
-          <div class="glamhop-hero-status-msg" id="glamhop-status-message">Processing your order</div>
+          <div class="glamhop-hero-status-msg" id="glamhop-status-message">—</div>
         </div>
 
-        <!-- Horizontal Shipment Progress Bar (6 Stages) -->
+        <!-- Horizontal Shipment Progress Bar (7 Steps) -->
         <div class="glamhop-progress-section">
           <div class="glamhop-progress-line-track">
             <div class="glamhop-progress-line-fill" id="glamhop-progress-fill"></div>
@@ -127,25 +160,29 @@
           <div class="glamhop-progress-steps">
             <div class="glamhop-progress-step" data-step="0">
               <div class="glamhop-step-dot"></div>
-              <span class="glamhop-step-label">To be processed</span>
+              <span class="glamhop-step-label">Order Placed</span>
             </div>
             <div class="glamhop-progress-step" data-step="1">
               <div class="glamhop-step-dot"></div>
-              <span class="glamhop-step-label">Prepared</span>
+              <span class="glamhop-step-label">Confirmed</span>
             </div>
             <div class="glamhop-progress-step" data-step="2">
               <div class="glamhop-step-dot"></div>
-              <span class="glamhop-step-label">Shipping soon</span>
+              <span class="glamhop-step-label">Packed</span>
             </div>
             <div class="glamhop-progress-step" data-step="3">
               <div class="glamhop-step-dot"></div>
-              <span class="glamhop-step-label">In transit</span>
+              <span class="glamhop-step-label">Shipped</span>
             </div>
             <div class="glamhop-progress-step" data-step="4">
               <div class="glamhop-step-dot"></div>
-              <span class="glamhop-step-label">Out for delivery</span>
+              <span class="glamhop-step-label">In Transit</span>
             </div>
             <div class="glamhop-progress-step" data-step="5">
+              <div class="glamhop-step-dot"></div>
+              <span class="glamhop-step-label">Out For Delivery</span>
+            </div>
+            <div class="glamhop-progress-step" data-step="6">
               <div class="glamhop-step-dot"></div>
               <span class="glamhop-step-label">Delivered</span>
             </div>
@@ -153,13 +190,22 @@
         </div>
       </div>
 
-      <!-- Shipment Timeline Section -->
+      <!-- Checkpoint Timezone Selector & Shipment Timeline Card -->
       <div class="glamhop-luxury-card glamhop-timeline-card">
-        <h3 class="glamhop-card-section-title">Shipment Timeline</h3>
+        <div class="glamhop-timeline-header-group">
+          <h3 class="glamhop-card-section-title">Shipment Timeline</h3>
+          <div class="glamhop-timezone-selector-container">
+            <select id="glamhop-timezone-select" class="glamhop-timezone-select">
+              <option value="local" selected>Local Time</option>
+              <option value="carrier">Carrier Timezone (IST)</option>
+              <option value="utc">UTC</option>
+            </select>
+          </div>
+        </div>
         <div class="glamhop-timeline" id="glamhop-timeline"></div>
       </div>
 
-      <!-- Courier Details Card -->
+      <!-- Courier / Carrier Section Card -->
       <div class="glamhop-luxury-card glamhop-courier-card">
         <div class="glamhop-courier-grid">
           
@@ -168,7 +214,7 @@
               <!-- Dynamically populated SVG logo -->
             </div>
             <div class="glamhop-courier-meta">
-              <span class="glamhop-courier-label">Courier</span>
+              <span class="glamhop-courier-label">Courier Name</span>
               <div class="glamhop-courier-val" id="glamhop-courier-name-val">—</div>
             </div>
           </div>
@@ -189,6 +235,16 @@
           <div class="glamhop-courier-col">
             <span class="glamhop-courier-label">Order Number</span>
             <div class="glamhop-courier-val" id="glamhop-order-val">—</div>
+          </div>
+
+          <div class="glamhop-courier-col">
+            <span class="glamhop-courier-label">Shipment Status</span>
+            <div class="glamhop-courier-val" id="glamhop-shipment-status-val">—</div>
+          </div>
+
+          <div class="glamhop-courier-col">
+            <span class="glamhop-courier-label">Courier Service</span>
+            <div class="glamhop-courier-val" id="glamhop-courier-service-val">—</div>
           </div>
 
         </div>
@@ -251,6 +307,71 @@
 
   .glamhop-form-card {
     border: 1px solid #e5e5e5;
+    padding-top: 16px; /* give space for tabs */
+  }
+
+  /* Luxury Tabs Styling */
+  .glamhop-tabs {
+    display: flex;
+    position: relative;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 28px;
+    gap: 8px;
+  }
+
+  .glamhop-tab-btn {
+    background: none;
+    border: none;
+    padding: 14px 16px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #888888;
+    cursor: pointer;
+    transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  .glamhop-tab-btn.active {
+    color: #000000;
+  }
+
+  .glamhop-tab-indicator {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    height: 1px;
+    background: #000000;
+    transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1), width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Back to Search Button */
+  .glamhop-btn-back {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #666666;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+    transition: color 0.2s ease;
+  }
+
+  .glamhop-btn-back:hover {
+    color: #000000;
+  }
+
+  .glamhop-back-icon {
+    width: 14px;
+    height: 14px;
+    color: currentColor;
   }
 
   /* Form Elements */
@@ -414,25 +535,30 @@
 
   .glamhop-hero-date-group {
     display: flex;
-    align-items: baseline;
-    gap: 12px;
-    flex-wrap: wrap;
+    flex-direction: column;
     margin-top: 6px;
   }
 
   .glamhop-hero-date {
-    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-size: clamp(1.8rem, 4.5vw, 2.4rem);
     font-weight: 700;
     letter-spacing: -0.04em;
     color: #000000;
     margin: 0;
+    line-height: 1.2;
   }
 
-  .glamhop-hero-time {
-    font-size: 1.25rem;
-    font-weight: 300;
+  .glamhop-hero-date span.edd-date {
+    display: block;
+  }
+
+  .glamhop-hero-date span.edd-time {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 400;
     color: #555555;
-    letter-spacing: -0.02em;
+    margin-top: 4px;
+    letter-spacing: -0.01em;
   }
 
   .glamhop-hero-status-container {
@@ -452,7 +578,7 @@
     color: #000000;
   }
 
-  /* Dynamic 6-Stage Progress Bar */
+  /* Dynamic 7-Stage Progress Bar */
   .glamhop-progress-section {
     position: relative;
     padding: 10px 0 20px;
@@ -461,8 +587,8 @@
   .glamhop-progress-line-track {
     position: absolute;
     top: 15px;
-    left: 8.33%;
-    right: 8.33%;
+    left: 7.14%;
+    right: 7.14%;
     height: 2px;
     background: #f0f0f0;
     border-radius: 1px;
@@ -488,7 +614,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 16.66%;
+    width: 14.28%;
     position: relative;
   }
 
@@ -523,13 +649,13 @@
   }
 
   .glamhop-step-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 600;
     color: #a0a0a0;
     text-align: center;
     line-height: 1.3;
     transition: color 0.4s ease;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 
   .glamhop-progress-step.active .glamhop-step-label {
@@ -537,15 +663,52 @@
   }
 
   /* Timeline Segment Card */
+  .glamhop-timeline-header-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 28px;
+    padding-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
   .glamhop-card-section-title {
     font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    margin: 0 0 28px;
+    margin: 0;
     color: #000000;
-    border-bottom: 1px solid #f0f0f0;
-    padding-bottom: 16px;
+  }
+
+  .glamhop-timezone-selector-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .glamhop-timezone-select {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 6px 24px 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #333333;
+    outline: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23333333'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 10px;
+    -webkit-appearance: none;
+  }
+
+  .glamhop-timezone-select:focus {
+    border-color: #000000;
   }
 
   .glamhop-timeline {
@@ -651,7 +814,7 @@
     letter-spacing: 0.05em;
   }
 
-  /* Courier Card */
+  /* Courier Card Grid */
   .glamhop-courier-grid {
     display: flex;
     flex-direction: column;
@@ -762,7 +925,7 @@
     transform: translate(-50%, -6px) scale(1);
   }
 
-  /* Skeleton Loading animations & styles */
+  /* Skeleton Loading */
   .glamhop-skeleton-container {
     animation: glamhop-fade-in 0.3s ease;
   }
@@ -866,20 +1029,17 @@
 
   @media (max-width: 540px) {
     .glamhop-progress-line-track {
-      left: 10%;
-      right: 10%;
+      left: 7.14%;
+      right: 7.14%;
     }
     .glamhop-progress-step {
-      width: 16.66%;
+      width: 14.28%;
     }
     .glamhop-step-label {
-      font-size: 0.58rem;
+      font-size: 0.52rem;
     }
     .glamhop-timeline-item::after {
       left: 77px;
-    }
-    .glamhop-hero-date {
-      font-size: 2.2rem;
     }
   }
 </style>
@@ -896,17 +1056,22 @@
   const resultBox = document.getElementById('glamhop-result');
   
   const eddDate = document.getElementById('glamhop-edd-date');
-  const eddTime = document.getElementById('glamhop-edd-time');
   const statusMessage = document.getElementById('glamhop-status-message');
   const progressFill = document.getElementById('glamhop-progress-fill');
   const progressSteps = document.querySelectorAll('.glamhop-progress-step');
   
+  const timezoneSelect = document.getElementById('glamhop-timezone-select');
   const timeline = document.getElementById('glamhop-timeline');
   const courierNameVal = document.getElementById('glamhop-courier-name-val');
   const courierLogo = document.getElementById('glamhop-courier-logo');
   const awbVal = document.getElementById('glamhop-awb-val');
   const orderVal = document.getElementById('glamhop-order-val');
+  const shipmentStatusVal = document.getElementById('glamhop-shipment-status-val');
+  const courierServiceVal = document.getElementById('glamhop-courier-service-val');
   const copyBtn = document.getElementById('glamhop-copy-awb');
+
+  // Stores currently fetched active tracking data for timezone re-evaluation
+  let currentTrackingData = null;
 
   // Friendly status labels mapping
   const friendlyStatusMap = {
@@ -917,9 +1082,9 @@
     'OutForDelivery': 'Out for delivery',
     'Delivered': 'Delivered',
     'Pending': 'To be processed',
-    'Confirmed': 'To be processed',
+    'Confirmed': 'Confirmed',
     'Not Yet Shipped': 'To be processed',
-    'Prepared': 'Prepared'
+    'Prepared': 'Packed'
   };
 
   function getFriendlyStatusLabel(status) {
@@ -955,37 +1120,74 @@
     }
   }
 
-  function parseFormattedDate(dateStr) {
-    if (!dateStr) return { dayName: '', dateText: 'Not available yet', timeText: '' };
+  // Parses Estimated Delivery based on requested premium format:
+  // "Today at 8:00 PM", "Tomorrow by 6:30 PM", "12 Jul 2026 before 9 PM"
+  function formatEstimatedDelivery(eddStr) {
+    if (!eddStr) return 'Estimated delivery unavailable.';
     try {
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) {
-        return { dayName: '', dateText: dateStr, timeText: '' };
-      }
+      const d = new Date(eddStr);
+      if (isNaN(d.getTime())) return eddStr;
       
       const today = new Date();
       const tomorrow = new Date();
       tomorrow.setDate(today.getDate() + 1);
 
-      let dayLabel = '';
+      let dateText = '';
+      let prefix = 'before';
+
       if (d.toDateString() === today.toDateString()) {
-        dayLabel = 'Today';
+        dateText = 'Today';
+        prefix = 'at';
       } else if (d.toDateString() === tomorrow.toDateString()) {
-        dayLabel = 'Tomorrow';
+        dateText = 'Tomorrow';
+        prefix = 'by';
       } else {
-        dayLabel = d.toLocaleDateString('en-IN', { weekday: 'long' });
+        // e.g. "12 Jul 2026"
+        const options = { day: 'numeric', month: 'short', year: 'numeric' };
+        dateText = d.toLocaleDateString('en-GB', options);
       }
 
-      const datePart = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-      const timePart = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-      
-      return {
-        dayName: dayLabel,
-        dateText: `${dayLabel}, ${datePart}`,
-        timeText: timePart
-      };
+      const timeText = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      return `<span class="edd-date">${dateText}</span> <span class="edd-time">${prefix} ${timeText}</span>`;
     } catch {
-      return { dayName: '', dateText: dateStr, timeText: '' };
+      return eddStr;
+    }
+  }
+
+  // Format Checkpoint Date/Time using timezone mode: local, utc, carrier (IST)
+  function formatEventDateTime(dateStr, tzMode) {
+    if (!dateStr) return { date: '—', time: '—' };
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) {
+        return { date: dateStr, time: '' };
+      }
+
+      let options = {};
+      if (tzMode === 'utc') {
+        options.timeZone = 'UTC';
+      } else if (tzMode === 'carrier') {
+        // Shiprocket carrier timezone defaults to IST
+        options.timeZone = 'Asia/Kolkata';
+      }
+
+      const dateText = d.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        ...options
+      });
+
+      const timeText = d.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        ...options
+      });
+
+      return { date: dateText, time: timeText };
+    } catch {
+      return { date: dateStr, time: '' };
     }
   }
 
@@ -1002,29 +1204,31 @@
   function updateProgressBar(status) {
     const cleanStatus = (status || '').toLowerCase().replace(/\s+/g, '');
     
-    let activeIndex = 0; // 6 stages: 0: To be processed, 1: Prepared, 2: Shipping soon, 3: In transit, 4: Out for delivery, 5: Delivered
+    let activeIndex = 0; // 7 stages: 0: Order Placed, 1: Confirmed, 2: Packed, 3: Shipped, 4: In Transit, 5: Out For Delivery, 6: Delivered
     
-    if (cleanStatus.includes('pending') || cleanStatus.includes('confirmed') || cleanStatus.includes('received') || cleanStatus.includes('tobeprocessed')) {
+    if (cleanStatus.includes('pending') || cleanStatus.includes('received') || cleanStatus.includes('orderplaced') || cleanStatus.includes('tobeprocessed')) {
       activeIndex = 0;
-    } else if (cleanStatus.includes('pack') || cleanStatus.includes('prepare') || cleanStatus.includes('ready')) {
+    } else if (cleanStatus.includes('confirm') || cleanStatus.includes('paid')) {
       activeIndex = 1;
-    } else if (cleanStatus.includes('shippingsoon') || cleanStatus.includes('readyforreceive')) {
+    } else if (cleanStatus.includes('pack') || cleanStatus.includes('prepare') || cleanStatus.includes('ready')) {
       activeIndex = 2;
-    } else if (cleanStatus.includes('transit') || cleanStatus.includes('depart') || cleanStatus.includes('carrier') || cleanStatus.includes('facility') || cleanStatus.includes('pickup')) {
+    } else if (cleanStatus.includes('shipped') || cleanStatus.includes('pickup') || cleanStatus.includes('dispatched') || cleanStatus.includes('readyforreceive')) {
       activeIndex = 3;
+    } else if (cleanStatus.includes('transit') || cleanStatus.includes('depart') || cleanStatus.includes('facility') || cleanStatus.includes('carrier')) {
+      activeIndex = 4;
     } else if (cleanStatus.includes('out') || cleanStatus.includes('delivery') || cleanStatus.includes('delivering')) {
-      // Exclude final 'delivered'
+      // Check for final 'delivered' vs active 'out for delivery'
       if (cleanStatus.includes('delivered')) {
-        activeIndex = 5;
+        activeIndex = 6;
       } else {
-        activeIndex = 4;
+        activeIndex = 5;
       }
     } else if (cleanStatus.includes('delivered')) {
-      activeIndex = 5;
+      activeIndex = 6;
     }
 
-    // Set Fill Width: 0% to 100% across the 5 intervals of the 6 stages
-    const fillPercent = (activeIndex / 5) * 100;
+    // Set Fill Width: 0% to 100% across the 6 intervals of the 7 stages
+    const fillPercent = (activeIndex / 6) * 100;
     progressFill.style.width = `${fillPercent}%`;
 
     progressSteps.forEach((step, idx) => {
@@ -1037,22 +1241,22 @@
     });
   }
 
-  function renderTimeline(events, courier) {
+  function renderTimeline(events, courier, tzMode) {
     if (!events || events.length === 0) {
       timeline.innerHTML = '<div class="glamhop-no-tracking">No journey details recorded yet. Check back later once tracking starts.</div>';
       return;
     }
 
-    timeline.innerHTML = events.map((event, index) => {
+    timeline.innerHTML = events.map((event) => {
       const friendlyStatus = getFriendlyStatusLabel(event.status);
-      const parsed = parseFormattedDate(event.date);
+      const parsed = formatEventDateTime(event.date, tzMode);
       const locationText = event.location ? ` — ${event.location}` : '';
 
       return `
         <div class="glamhop-timeline-item">
           <div class="glamhop-timeline-left">
-            <div class="glamhop-timeline-date-val">${parsed.dateText.split(', ')[1] || parsed.dateText}</div>
-            <div class="glamhop-timeline-time-val">${parsed.timeText}</div>
+            <div class="glamhop-timeline-date-val">${parsed.date}</div>
+            <div class="glamhop-timeline-time-val">${parsed.time}</div>
           </div>
           <div class="glamhop-timeline-center">
             <div class="glamhop-timeline-marker"></div>
@@ -1065,6 +1269,88 @@
         </div>
       `;
     }).join('');
+  }
+
+  // Handle Checkpoint Timezone Selector
+  timezoneSelect.addEventListener('change', function () {
+    if (currentTrackingData) {
+      const tracking = currentTrackingData.tracking || {};
+      const eventsList = tracking.events || [];
+      renderTimeline(eventsList, tracking.courier, timezoneSelect.value);
+    }
+  });
+
+  // Tab Toggle Logic
+  const tabOrder = document.getElementById('glamhop-tab-order');
+  const tabTracking = document.getElementById('glamhop-tab-tracking');
+  const fieldsOrder = document.getElementById('glamhop-fields-order-group');
+  const fieldsTracking = document.getElementById('glamhop-fields-tracking-group');
+  const tabIndicator = document.querySelector('.glamhop-tab-indicator');
+  const formCard = document.querySelector('.glamhop-form-card');
+  const headerSection = document.querySelector('.glamhop-tracking-header');
+  const backBtn = document.getElementById('glamhop-btn-back-to-search');
+
+  let activeTab = 'order'; // 'order' or 'tracking'
+
+  function updateTabIndicator() {
+    const activeBtn = activeTab === 'order' ? tabOrder : tabTracking;
+    if (activeBtn && tabIndicator) {
+      tabIndicator.style.left = `${activeBtn.offsetLeft}px`;
+      tabIndicator.style.width = `${activeBtn.offsetWidth}px`;
+    }
+  }
+
+  // Adjust sliding indicator line after page load/fonts render
+  setTimeout(updateTabIndicator, 150);
+
+  if (tabOrder && tabTracking) {
+    tabOrder.addEventListener('click', () => {
+      if (activeTab === 'order') return;
+      activeTab = 'order';
+      tabOrder.classList.add('active');
+      tabTracking.classList.remove('active');
+      fieldsOrder.hidden = false;
+      fieldsTracking.hidden = true;
+      updateTabIndicator();
+      hideError();
+    });
+
+    tabTracking.addEventListener('click', () => {
+      if (activeTab === 'tracking') return;
+      activeTab = 'tracking';
+      tabTracking.classList.add('active');
+      tabOrder.classList.remove('active');
+      fieldsOrder.hidden = true;
+      fieldsTracking.hidden = false;
+      updateTabIndicator();
+      hideError();
+    });
+
+    window.addEventListener('resize', updateTabIndicator);
+  }
+
+  // Navigation handlers
+  function showFormView() {
+    formCard.hidden = false;
+    headerSection.hidden = false;
+    resultBox.hidden = true;
+    skeletonBox.hidden = true;
+  }
+
+  function showResultsView() {
+    formCard.hidden = true;
+    headerSection.hidden = true;
+    resultBox.hidden = false;
+    skeletonBox.hidden = true;
+  }
+
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      // Clear query params and show clean search form
+      window.history.pushState(null, '', window.location.pathname);
+      showFormView();
+      hideError();
+    });
   }
 
   // Copy AWB clipboard hook
@@ -1080,25 +1366,15 @@
     }
   });
 
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
-    hideError();
+  // Common tracking fetch handler
+  async function fetchTrackingData(queryParams) {
     toggleLoading(true);
-
-    const orderNumber = document.getElementById('glamhop-order-number').value.trim();
-    const email = document.getElementById('glamhop-email').value.trim();
-
-    if (!orderNumber) {
-      toggleLoading(false);
-      return showError('Please enter your order number.');
-    }
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toggleLoading(false);
-      return showError('Please enter a valid email address.');
-    }
+    // Hide inputs immediately to show skeleton loader card on full viewport
+    formCard.hidden = true;
+    headerSection.hidden = true;
 
     try {
-      const params = new URLSearchParams({ order_number: orderNumber, email });
+      const params = new URLSearchParams(queryParams);
       const response = await fetch(`/apps/tracking/track?${params.toString()}`, {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
@@ -1107,31 +1383,31 @@
       const data = await response.json();
 
       if (!response.ok || data.error) {
+        showFormView();
         toggleLoading(false);
-        return showError(data.error || 'Something went wrong. Please try again.');
+        showError(data.error || 'Tracking details are temporarily unavailable. Please try again.');
+        // Clean params from browser bar since query was unsuccessful
+        window.history.replaceState(null, '', window.location.pathname);
+        return false;
       }
 
+      currentTrackingData = data;
       const order = data.order || {};
       const tracking = data.tracking || {};
       
-      // Determine the overall status
       let finalStatusText = order.status || 'To be processed';
       if (tracking.events && tracking.events.length > 0) {
-        // Use the latest status from events if available
         finalStatusText = tracking.events[0].status || finalStatusText;
       }
 
-      // 1. Setup Estimated Delivery date/time
+      // 1. Setup Estimated Delivery
       if (tracking.estimated_delivery) {
-        const parsedEDD = parseFormattedDate(tracking.estimated_delivery);
-        eddDate.textContent = parsedEDD.dateText;
-        eddTime.textContent = parsedEDD.timeText;
+        eddDate.innerHTML = formatEstimatedDelivery(tracking.estimated_delivery);
       } else {
-        eddDate.textContent = 'Not available yet';
-        eddTime.textContent = '';
+        eddDate.textContent = 'Estimated delivery unavailable.';
       }
 
-      // 2. Shipment banner status message
+      // 2. Status banner message
       const normStatus = finalStatusText.toLowerCase();
       if (normStatus.includes('deliver')) {
         statusMessage.textContent = 'Your order has been delivered.';
@@ -1145,39 +1421,104 @@
         statusMessage.textContent = 'We are processing your order.';
       }
 
-      // 3. Update active step on progress bar
+      // 3. Update progress bar
       updateProgressBar(finalStatusText);
 
-      // 4. Timeline list rendering
-      // Note: Backend events array is expected to be sorted, if not, render as is
+      // 4. Render shipment timeline
       const eventsList = tracking.events || [];
-      if (eventsList.length > 0) {
-        renderTimeline(eventsList, tracking.courier);
-      } else {
-        renderTimeline([], null);
-        // Show unavailable warning only if events are empty and there is no mock flow message
-        if (data.message) {
-          timeline.innerHTML = `<div class="glamhop-no-tracking">${data.message}</div>`;
-        }
-      }
+      renderTimeline(eventsList, tracking.courier, timezoneSelect.value);
 
       // 5. Courier Details / AWB / Order
       courierNameVal.textContent = tracking.courier || 'Shiprocket';
       renderCourierLogo(tracking.courier);
       awbVal.textContent = tracking.awb || '—';
       orderVal.textContent = order.number || '—';
+      shipmentStatusVal.textContent = getFriendlyStatusLabel(finalStatusText);
+      courierServiceVal.textContent = tracking.courier || 'Standard Ground';
 
-      // Switch to results view smoothly
+      showResultsView();
       toggleLoading(false);
-      resultBox.hidden = false;
-      resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return true;
 
     } catch (err) {
       console.error('[glamhop-tracking] fetch error:', err);
+      showFormView();
       toggleLoading(false);
-      showError('Unable to connect. Please check your internet connection and try again.');
+      showError('Tracking details are temporarily unavailable. Please try again.');
+      window.history.replaceState(null, '', window.location.pathname);
+      return false;
+    }
+  }
+
+  // Handle URL changes (history navigation back/forward)
+  async function handleUrlNavigation() {
+    const params = new URLSearchParams(window.location.search);
+    const orderNumber = params.get('order_number');
+    const email = params.get('email');
+    const awb = params.get('awb');
+
+    if (awb && awb.trim()) {
+      activeTab = 'tracking';
+      if (tabTracking) tabTracking.classList.add('active');
+      if (tabOrder) tabOrder.classList.remove('active');
+      if (fieldsOrder) fieldsOrder.hidden = true;
+      if (fieldsTracking) fieldsTracking.hidden = false;
+      document.getElementById('glamhop-awb-input').value = awb.trim();
+      updateTabIndicator();
+      await fetchTrackingData({ awb: awb.trim() });
+    } else if (orderNumber && email) {
+      activeTab = 'order';
+      if (tabOrder) tabOrder.classList.add('active');
+      if (tabTracking) tabTracking.classList.remove('active');
+      if (fieldsOrder) fieldsOrder.hidden = false;
+      if (fieldsTracking) fieldsTracking.hidden = true;
+      document.getElementById('glamhop-order-number').value = orderNumber.trim();
+      document.getElementById('glamhop-email').value = email.trim();
+      updateTabIndicator();
+      await fetchTrackingData({ order_number: orderNumber.trim(), email: email.trim() });
+    } else {
+      showFormView();
+    }
+  }
+
+  // Submit trigger
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    hideError();
+
+    let queryParams = {};
+
+    if (activeTab === 'order') {
+      const orderNumber = document.getElementById('glamhop-order-number').value.trim();
+      const email = document.getElementById('glamhop-email').value.trim();
+
+      if (!orderNumber) {
+        return showError('Please enter your order number.');
+      }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return showError('Please enter a valid email address.');
+      }
+      queryParams = { order_number: orderNumber, email };
+    } else {
+      const awbCode = document.getElementById('glamhop-awb-input').value.trim();
+      if (!awbCode) {
+        return showError('Please enter your tracking number.');
+      }
+      queryParams = { awb: awbCode };
+    }
+
+    // Call fetchTrackingData. If successful, push state to URL.
+    const success = await fetchTrackingData(queryParams);
+    if (success) {
+      const params = new URLSearchParams(queryParams);
+      window.history.pushState(null, '', '?' + params.toString());
+      resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
+
+  // Page Load and Popstate handler
+  window.addEventListener('popstate', handleUrlNavigation);
+  handleUrlNavigation();
 
 })();
 </script>
