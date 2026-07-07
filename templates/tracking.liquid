@@ -471,13 +471,19 @@
     if (!iso) return { date: '—', time: '—' };
     try {
       var d = new Date(iso);
-      if (isNaN(d)) return { date: iso, time: '' };
+      // If the ISO string is not parseable (e.g. unknown Shiprocket format),
+      // try passing it to Date() directly as a fallback.
+      if (isNaN(d)) {
+        // Some Shiprocket responses use "Jul 06 2026 04:12 PM" — Date() handles this.
+        d = new Date(iso.replace(/([APap][Mm])$/, ' $1'));
+      }
+      if (isNaN(d)) return { date: iso.slice(0, 10) || '—', time: '' };
       var opts = (tz && tz !== 'local') ? { timeZone: tz } : {};
       var date = d.toLocaleDateString('en-IN', Object.assign({ day: 'numeric', month: 'short' }, opts));
       var time = d.toLocaleTimeString('en-IN', Object.assign({ hour: '2-digit', minute: '2-digit', hour12: true }, opts)).toUpperCase();
       return { date: date, time: time };
     } catch (e) {
-      return { date: iso, time: '' };
+      return { date: iso.slice(0, 10) || '—', time: '' };
     }
   }
 
@@ -573,40 +579,50 @@
 
   /* ── Timeline renderer ── */
   function renderTimeline(events, courier, originTz, mode) {
+    var tz = tzFromMode(mode, originTz);
+
     if (!events || events.length === 0) {
-      timelineEl.innerHTML = '';
+      timelineEl.innerHTML =
+        '<p style="font-size:.82rem;color:#999;margin:0;padding:4px 0">' +
+        'No checkpoint events returned by the courier yet. ' +
+        'Check back once the shipment has been scanned.</p>';
       return;
     }
-    var tz = tzFromMode(mode, originTz);
-    timelineEl.innerHTML = events.map(function (ev) {
-      var dt    = fmtDatetime(ev.date, tz);
-      var title = friendlyStatus(ev.status);
-      var desc  = ev.description || '';
-      var showDesc = desc && desc.toLowerCase() !== title.toLowerCase();
 
-      /* Build location: prefer separate city/state/country, fall back to raw location string */
-      var parts = [];
-      if (ev.city)    parts.push(ev.city);
-      if (ev.state)   parts.push(ev.state);
-      if (ev.country) parts.push(ev.country);
-      var loc = parts.length ? parts.join(', ') : (ev.location || '');
+    var html = '';
+    events.forEach(function (ev, idx) {
+      try {
+        var dt    = fmtDatetime(ev.date, tz);
+        var title = friendlyStatus(ev.status);
+        var desc  = ev.description || '';
+        var showDesc = desc && desc.toLowerCase() !== title.toLowerCase();
 
-      return (
-        '<div class="gh-tl-item">' +
-          '<div class="gh-tl-time">' +
-            '<div class="gh-tl-date">' + dt.date + '</div>' +
-            '<div class="gh-tl-hour">' + dt.time + '</div>' +
-          '</div>' +
-          '<div class="gh-tl-dot-col"><div class="gh-tl-dot"></div></div>' +
-          '<div class="gh-tl-body">' +
-            '<div class="gh-tl-title">' + title + '</div>' +
-            (showDesc ? '<div class="gh-tl-desc">' + desc + '</div>' : '') +
-            (loc      ? '<div class="gh-tl-loc">'  + loc  + '</div>' : '') +
-            (courier  ? '<span class="gh-tl-tag">'  + courier + '</span>' : '') +
-          '</div>' +
-        '</div>'
-      );
-    }).join('');
+        var parts = [];
+        if (ev.city)    parts.push(ev.city);
+        if (ev.state)   parts.push(ev.state);
+        if (ev.country) parts.push(ev.country);
+        var loc = parts.length ? parts.join(', ') : (ev.location || '');
+
+        html +=
+          '<div class="gh-tl-item">' +
+            '<div class="gh-tl-time">' +
+              '<div class="gh-tl-date">' + dt.date + '</div>' +
+              '<div class="gh-tl-hour">' + dt.time + '</div>' +
+            '</div>' +
+            '<div class="gh-tl-dot-col"><div class="gh-tl-dot"></div></div>' +
+            '<div class="gh-tl-body">' +
+              '<div class="gh-tl-title">' + title + '</div>' +
+              (showDesc ? '<div class="gh-tl-desc">' + desc + '</div>' : '') +
+              (loc      ? '<div class="gh-tl-loc">'  + loc  + '</div>' : '') +
+              (courier  ? '<span class="gh-tl-tag">'  + courier + '</span>' : '') +
+            '</div>' +
+          '</div>';
+      } catch (evErr) {
+        console.warn('[GH] Event ' + idx + ' render error:', evErr);
+      }
+    });
+
+    timelineEl.innerHTML = html || '<p style="font-size:.82rem;color:#999;margin:0">Could not render checkpoint data.</p>';
   }
 
   /* ── Populate result ── */
@@ -617,11 +633,14 @@
     var events   = tracking.events || [];
     var originTz = tracking.origin_timezone || 'Asia/Kolkata';
 
+    // Diagnostic: log everything to browser console for easy inspection
+    console.log('[GH Tracking] Full API response:', JSON.stringify(data));
+    console.log('[GH Tracking] Events received:', events.length, events);
+
     /*
      * Status priority:
-     * 1. order.status  — this is Shiprocket's current_status (most reliable)
-     * 2. First event's status label (sr-status-label from most recent checkpoint)
-     * 3. Fall back to empty string
+     * 1. order.status  — Shiprocket current_status (most reliable)
+     * 2. First event status label
      */
     var liveStatus = order.status || (events.length ? events[0].status : '');
 
@@ -630,7 +649,6 @@
     setStatusBadge(liveStatus);
     setProgress(liveStatus);
 
-    /* Default timezone to Local Time */
     tzSelect.value = 'local';
     renderTimeline(events, tracking.courier, originTz, 'local');
 
