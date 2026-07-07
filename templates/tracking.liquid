@@ -171,9 +171,9 @@
           <span class="gh-tz-label">Checkpoint timezone</span>
           <div class="gh-tz-wrap">
             <select class="gh-tz-select" id="gh-tz">
-              <option value="local">Local Time</option>
-              <option value="origin" selected>Origin Time (IST)</option>
-              <option value="destination">Destination Time (IST)</option>
+              <option value="local" selected>Local Time</option>
+              <option value="origin">Origin Time</option>
+              <option value="destination">Destination Time</option>
             </select>
             <svg class="gh-tz-caret" width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
               <path d="M5 7L1 3h8z"/>
@@ -184,7 +184,6 @@
 
       <!-- Timeline card -->
       <div class="gh-card">
-        <h3 class="gh-section-title">Shipment updates</h3>
         <div class="gh-timeline" id="gh-timeline"></div>
       </div>
 
@@ -489,7 +488,7 @@
 
   /* ── EDD formatter ── */
   function formatEDD(eddStr) {
-    if (!eddStr) return '<span class="edd-line">Unavailable</span>';
+    if (!eddStr) return '<span class="edd-line">Estimated delivery not available</span>';
     try {
       var d = new Date(eddStr);
       if (isNaN(d)) return '<span class="edd-line">' + eddStr + '</span>';
@@ -575,7 +574,7 @@
   /* ── Timeline renderer ── */
   function renderTimeline(events, courier, originTz, mode) {
     if (!events || events.length === 0) {
-      timelineEl.innerHTML = '<p style="font-size:.85rem;color:#888;margin:0">No checkpoint data yet. Check back once the shipment is in transit.</p>';
+      timelineEl.innerHTML = '';
       return;
     }
     var tz = tzFromMode(mode, originTz);
@@ -618,17 +617,22 @@
     var events   = tracking.events || [];
     var originTz = tracking.origin_timezone || 'Asia/Kolkata';
 
-    /* Use latest event status as the live status if available */
-    var liveStatus = events.length ? events[0].status : (order.status || '');
+    /*
+     * Status priority:
+     * 1. order.status  — this is Shiprocket's current_status (most reliable)
+     * 2. First event's status label (sr-status-label from most recent checkpoint)
+     * 3. Fall back to empty string
+     */
+    var liveStatus = order.status || (events.length ? events[0].status : '');
 
-    eddEl.innerHTML       = formatEDD(tracking.estimated_delivery);
+    eddEl.innerHTML          = formatEDD(tracking.estimated_delivery);
     statusLineEl.textContent = getStatusHeadline(liveStatus);
     setStatusBadge(liveStatus);
     setProgress(liveStatus);
 
-    /* Default to Origin (IST) to match Shiprocket's native timezone */
-    tzSelect.value = 'origin';
-    renderTimeline(events, tracking.courier, originTz, 'origin');
+    /* Default timezone to Local Time */
+    tzSelect.value = 'local';
+    renderTimeline(events, tracking.courier, originTz, 'local');
 
     carrierNameEl.textContent = tracking.courier || 'Shiprocket';
     awbValEl.textContent      = tracking.awb      || '—';
