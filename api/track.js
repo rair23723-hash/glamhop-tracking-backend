@@ -53,6 +53,7 @@ module.exports = async function handler(req, res) {
           awb: trackingData.awb,
           tracking_url: trackingData.tracking_url,
           estimated_delivery: trackingData.estimated_delivery,
+          origin_timezone: trackingData.origin_timezone || 'Asia/Kolkata',
           events: trackingData.events,
         },
       });
@@ -174,6 +175,7 @@ module.exports = async function handler(req, res) {
         awb: trackingData.awb,
         tracking_url: trackingData.tracking_url,
         estimated_delivery: trackingData.estimated_delivery,
+        origin_timezone: trackingData.origin_timezone || 'Asia/Kolkata',
         events: trackingData.events,
       },
     });
