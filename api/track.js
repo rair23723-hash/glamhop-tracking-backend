@@ -273,8 +273,8 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({
       success: false,
       error: 'An unexpected error occurred. Please try again.',
-      _debug: process.env.NODE_ENV !== 'production' ? err.message : undefined,
-      _stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined,
+      _debug: err.message,
+      _stack: err.stack,
     });
   }
 };
