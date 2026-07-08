@@ -1,5 +1,5 @@
 const { verifyProxySignature } = require('../lib/verifyProxy');
-const { getOrderByNumberAndEmail, extractAWBFromOrder } = require('../lib/shopify');
+const { getOrderByNumberAndEmail, getOrderByNumber, extractAWBFromOrder } = require('../lib/shopify');
 const { getTrackingByAWB, getAWBByOrderNumber } = require('../lib/shiprocket');
 
 
@@ -40,15 +40,27 @@ module.exports = async function handler(req, res) {
       const cleanAwb = awb.trim();
       try {
         console.log(`[track] Direct AWB tracking lookup requested for AWB: ${cleanAwb}`);
-        const trackingData = await getTrackingByAWB(cleanAwb);
+        let trackingData = await getTrackingByAWB(cleanAwb);
+        let shopifyOrder = null;
+
+        if (trackingData.order_number) {
+          console.log(`[track] Tracking resolved order number: "${trackingData.order_number}". Fetching Shopify details...`);
+          shopifyOrder = await getOrderByNumber(trackingData.order_number);
+          if (shopifyOrder) {
+            console.log(`[track] Shopify order resolved successfully. Re-running normalization with shipping address fallbacks...`);
+            trackingData = await getTrackingByAWB(cleanAwb, shopifyOrder.shipping_address);
+          }
+        }
+
+        const resOrderNumber = shopifyOrder ? shopifyOrder.name : (trackingData.order_number ? `#${String(trackingData.order_number).replace(/^#/, '')}` : '—');
 
         return res.status(200).json({
           success: true,
           order: {
-            number: '—',
+            number: resOrderNumber,
             status: trackingData.current_status || 'In Transit',
-            financial_status: 'paid',
-            created_at: null,
+            financial_status: shopifyOrder ? shopifyOrder.financial_status : 'paid',
+            created_at: shopifyOrder ? shopifyOrder.created_at : null,
           },
           tracking: {
             courier: trackingData.courier,
