@@ -67,7 +67,7 @@ module.exports = async function handler(req, res) {
         if (code === 503) {
           return res.status(200).json({
             success: false,
-            error: 'Tracking service is not configured. Please contact support.',
+            error: shiprocketErr.message || 'Tracking service is not configured. Please contact support.',
             _debug: process.env.NODE_ENV !== 'production' ? shiprocketErr.message : undefined,
           });
         }
@@ -76,7 +76,7 @@ module.exports = async function handler(req, res) {
         if (code === 401 || code === 403) {
           return res.status(200).json({
             success: false,
-            error: 'Tracking service authentication failed. Please try again in a few minutes.',
+            error: shiprocketErr.message || 'Tracking service authentication failed. Please try again in a few minutes.',
           });
         }
 
@@ -84,7 +84,7 @@ module.exports = async function handler(req, res) {
         if (code === 404) {
           return res.status(200).json({
             success: false,
-            error: 'Tracking number not found. Please check the number and try again.',
+            error: shiprocketErr.message || 'Tracking number not found. Please check the number and try again.',
           });
         }
 
@@ -92,7 +92,7 @@ module.exports = async function handler(req, res) {
         if (code === 400 || code === 422) {
           return res.status(200).json({
             success: false,
-            error: 'Tracking number not found or not yet registered with this courier. Please verify and try again.',
+            error: shiprocketErr.message || 'Tracking number not found or not yet registered with this courier. Please verify and try again.',
           });
         }
 
@@ -100,7 +100,7 @@ module.exports = async function handler(req, res) {
         if (code === 429) {
           return res.status(200).json({
             success: false,
-            error: 'Tracking service is busy. Please try again in a few minutes.',
+            error: shiprocketErr.message || 'Tracking service is busy. Please try again in a few minutes.',
           });
         }
 
@@ -108,7 +108,7 @@ module.exports = async function handler(req, res) {
         if (code >= 500 || code === 0) {
           return res.status(200).json({
             success: false,
-            error: 'Tracking service is temporarily unavailable. Please try again in a few minutes.',
+            error: shiprocketErr.message || 'Tracking service is temporarily unavailable. Please try again in a few minutes.',
           });
         }
 
@@ -116,7 +116,7 @@ module.exports = async function handler(req, res) {
         console.error(`[track] Unexpected Shiprocket error code: ${code}`);
         return res.status(200).json({
           success: false,
-          error: 'An error occurred while fetching tracking data. Please try again.',
+          error: shiprocketErr.message || 'An error occurred while fetching tracking data. Please try again.',
         });
       }
     }
@@ -169,7 +169,7 @@ module.exports = async function handler(req, res) {
         // Propagate the specific Shiprocket error code instead of crashing
         return res.status(200).json({
           success: false,
-          error: 'Tracking service authentication or API failure. Please check back later.',
+          error: srOrderErr.message || 'Tracking service authentication or API failure. Please check back later.',
         });
       }
 
@@ -219,7 +219,7 @@ module.exports = async function handler(req, res) {
       if (code === 401 || code === 403) {
         return res.status(200).json({
           success: false,
-          error: 'Tracking service authentication failed. Please try again in a few minutes.',
+          error: shiprocketErr.message || 'Tracking service authentication failed. Please try again in a few minutes.',
         });
       }
       // 404 — AWB not in Shiprocket yet
@@ -243,7 +243,7 @@ module.exports = async function handler(req, res) {
       // All other errors — transient / network
       return res.status(200).json({
         success: false,
-        error: 'Tracking details are temporarily unavailable. Please try again in a few minutes.',
+        error: shiprocketErr.message || 'Tracking details are temporarily unavailable. Please try again in a few minutes.',
       });
     }
 
