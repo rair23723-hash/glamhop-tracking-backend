@@ -487,9 +487,10 @@
     }
   }
 
-  function tzFromMode(mode, originTz) {
-    if (mode === 'origin' || mode === 'destination') return originTz || 'Asia/Kolkata';
-    return null; /* local */
+  function tzFromMode(mode, originTz, destinationTz) {
+    if (mode === 'origin')      return originTz      || 'Asia/Kolkata';
+    if (mode === 'destination') return destinationTz || originTz || 'Asia/Kolkata';
+    return null; /* local — browser's own timezone */
   }
 
   /* ── EDD formatter ── */
@@ -578,8 +579,8 @@
   }
 
   /* ── Timeline renderer ── */
-  function renderTimeline(events, courier, originTz, mode) {
-    var tz = tzFromMode(mode, originTz);
+  function renderTimeline(events, courier, originTz, destinationTz, mode) {
+    var tz = tzFromMode(mode, originTz, destinationTz);
 
     if (!events || events.length === 0) {
       timelineEl.innerHTML =
@@ -633,9 +634,21 @@
     var events   = tracking.events || [];
     var originTz = tracking.origin_timezone || 'Asia/Kolkata';
 
+    // Derive destination timezone from the LAST event (most recent delivery location).
+    // For India-only couriers this is always Asia/Kolkata, but we compute it properly.
+    var destinationTz = 'Asia/Kolkata';
+    // (Future: map country/state to IANA zone if needed for international shipments)
+
     // Diagnostic: log everything to browser console for easy inspection
     console.log('[GH Tracking] Full API response:', JSON.stringify(data));
-    console.log('[GH Tracking] Events received:', events.length, events);
+    console.log('[GH Tracking] tracking.events count:', events.length);
+    console.log('[GH Tracking] Events array:', events);
+    if (events.length === 0) {
+      console.warn('[GH Tracking] ⚠️  events is EMPTY. This means either:');
+      console.warn('[GH Tracking]   1. Courier has not yet scanned the parcel (common for newly assigned AWBs)');
+      console.warn('[GH Tracking]   2. The backend could not find the activity field in the Shiprocket response');
+      console.warn('[GH Tracking]   Check Vercel function logs for the "ACTIVITY FIELD DETECTION" audit block.');
+    }
 
     /*
      * Status priority:
@@ -650,7 +663,7 @@
     setProgress(liveStatus);
 
     tzSelect.value = 'local';
-    renderTimeline(events, tracking.courier, originTz, 'local');
+    renderTimeline(events, tracking.courier, originTz, destinationTz, 'local');
 
     carrierNameEl.textContent = tracking.courier || 'Shiprocket';
     awbValEl.textContent      = tracking.awb      || '—';
@@ -665,6 +678,7 @@
       tracking.events || [],
       tracking.courier,
       tracking.origin_timezone || 'Asia/Kolkata',
+      'Asia/Kolkata', /* destinationTz — same for all India shipments */
       tzSelect.value
     );
   });

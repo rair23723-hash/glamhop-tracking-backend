@@ -60,6 +60,16 @@ module.exports = async function handler(req, res) {
     } catch (shiprocketErr) {
       const code = shiprocketErr.statusCode || 0;
       console.error(`[track] AWB lookup failed (statusCode=${code}):`, shiprocketErr.message);
+      console.error(`[track] AWB lookup stack:`, shiprocketErr.stack);
+
+      // 503 — missing env vars (SHIPROCKET_EMAIL / SHIPROCKET_PASSWORD not set on Vercel)
+      if (code === 503) {
+        return res.status(503).json({
+          success: false,
+          error: 'Tracking service is not configured. Please contact support.',
+          _debug: process.env.NODE_ENV !== 'production' ? shiprocketErr.message : undefined,
+        });
+      }
 
       // 401 / 403 — authentication / account blocked
       if (code === 401 || code === 403) {
@@ -209,6 +219,7 @@ module.exports = async function handler(req, res) {
 
   } catch (err) {
     console.error('[track] Unhandled error:', err.message);
+    console.error('[track] Unhandled stack:', err.stack);
 
     // Do not expose internal error details to the client
     return res.status(500).json({
