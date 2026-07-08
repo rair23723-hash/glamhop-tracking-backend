@@ -87,6 +87,22 @@ module.exports = async function handler(req, res) {
         });
       }
 
+      // 400 / 422 — Shiprocket does not recognise this AWB format
+      if (code === 400 || code === 422) {
+        return res.status(404).json({
+          success: false,
+          error: 'Tracking number not found or not yet registered with this courier. Please verify and try again.',
+        });
+      }
+
+      // 429 — Shiprocket rate limit hit
+      if (code === 429) {
+        return res.status(503).json({
+          success: false,
+          error: 'Tracking service is busy. Please try again in a few minutes.',
+        });
+      }
+
       // 5xx or network / timeout — transient
       if (code >= 500 || code === 0) {
         return res.status(503).json({
@@ -95,10 +111,11 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      // Fallback for any other error code
-      return res.status(500).json({
+      // All other unexpected codes — log and return 503
+      console.error(`[track] Unexpected Shiprocket error code: ${code}`);
+      return res.status(503).json({
         success: false,
-        error: 'An unexpected error occurred while fetching tracking data. Please try again.',
+        error: 'An error occurred while fetching tracking data. Please try again.',
       });
     }
   }
@@ -178,25 +195,49 @@ module.exports = async function handler(req, res) {
     try {
       trackingData = await getTrackingByAWB(awb);
     } catch (shiprocketErr) {
-      console.error('[track] Shiprocket tracking failed:', shiprocketErr.message);
+      const code = shiprocketErr.statusCode || 0;
+      console.error('[track] Shiprocket tracking failed for order flow (statusCode=%d):', code, shiprocketErr.message);
+      console.error('[track] Shiprocket tracking stack:', shiprocketErr.stack);
 
-      // Return order info even if Shiprocket fails — better than a blank error
-      return res.status(200).json({
-        success: true,
-        order: {
-          number: order.name,
-          status: latestFulfillment.status || 'Fulfilled',
-          financial_status: order.financial_status,
-        },
-        tracking: {
-          courier: latestFulfillment.courier,
-          awb,
-          tracking_url: null,
-          events: [],
-        },
-        message: 'Tracking details are temporarily unavailable. Please try again in a few minutes.',
+      // 503 — missing env vars
+      if (code === 503) {
+        return res.status(503).json({
+          success: false,
+          error: 'Tracking service is not configured. Please contact support.',
+        });
+      }
+      // 401/403 — auth/account issue
+      if (code === 401 || code === 403) {
+        return res.status(503).json({
+          success: false,
+          error: 'Tracking service authentication failed. Please try again in a few minutes.',
+        });
+      }
+      // 404 — AWB not in Shiprocket yet
+      if (code === 404) {
+        return res.status(200).json({
+          success: true,
+          order: {
+            number: order.name,
+            status: latestFulfillment.status || 'Fulfilled',
+            financial_status: order.financial_status,
+          },
+          tracking: {
+            courier: latestFulfillment.courier,
+            awb,
+            tracking_url: null,
+            events: [],
+          },
+          message: 'Shipment has been dispatched but tracking is not yet available. Please check back in a few hours.',
+        });
+      }
+      // All other errors — transient / network
+      return res.status(503).json({
+        success: false,
+        error: 'Tracking details are temporarily unavailable. Please try again in a few minutes.',
       });
     }
+
 
     // ── Step 4: Return clean success response ──
     return res.status(200).json({
