@@ -11,6 +11,10 @@
       "destination": "/api/track"
     },
     {
+      "source": "/debug-track",
+      "destination": "/api/debug-track"
+    },
+    {
       "source": "/api/track",
       "destination": "/api/track"
     },
