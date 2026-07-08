@@ -50,9 +50,9 @@ module.exports = async function handler(req, res) {
     );
     token      = authRes.data?.token;
     authStatus = { http: authRes.status, token_present: !!token };
-    if (!token) throw new Error('No token in auth response');
   } catch (err) {
-    return res.status(500).json({
+    return res.status(200).json({
+      success: false,
       step: 'shiprocket_auth',
       error: err.message,
       http_status: err?.response?.status,
@@ -75,7 +75,8 @@ module.exports = async function handler(req, res) {
     raw             = trackRes.data;
     trackHttpStatus = trackRes.status;
   } catch (err) {
-    return res.status(500).json({
+    return res.status(200).json({
+      success: false,
       step: 'shiprocket_track',
       error: err.message,
       http_status: err?.response?.status,
