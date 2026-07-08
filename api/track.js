@@ -48,6 +48,7 @@ module.exports = async function handler(req, res) {
             number: '—',
             status: trackingData.current_status || 'In Transit',
             financial_status: 'paid',
+            created_at: null,
           },
           tracking: {
             courier: trackingData.courier,
@@ -202,7 +203,7 @@ module.exports = async function handler(req, res) {
     // ── Step 3: Fetch tracking from Shiprocket ──
     let trackingData;
     try {
-      trackingData = await getTrackingByAWB(awbCode);
+      trackingData = await getTrackingByAWB(awbCode, order?.shipping_address);
     } catch (shiprocketErr) {
       const code = shiprocketErr.statusCode || 0;
       console.error('[track] Shiprocket tracking failed for order flow (statusCode=%d):', code, shiprocketErr.message);
