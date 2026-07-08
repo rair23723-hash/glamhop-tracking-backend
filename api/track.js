@@ -23,13 +23,13 @@ module.exports = async function handler(req, res) {
 
     // Only allow GET
     if (req.method !== 'GET') {
-      return res.status(405).json({ success: false, error: 'Method not allowed' });
+      return res.status(200).json({ success: false, error: 'Method not allowed' });
     }
 
     // ── Security: Verify this request came from Shopify App Proxy ──
     if (req.query.bypass !== 'true' && !verifyProxySignature(req.query)) {
       console.warn('[track] Invalid proxy signature — request rejected');
-      return res.status(403).json({ success: false, error: 'Unauthorized' });
+      return res.status(200).json({ success: false, error: 'Unauthorized' });
     }
 
     // ── Input validation ──
@@ -65,7 +65,7 @@ module.exports = async function handler(req, res) {
 
         // 503 — missing env vars (SHIPROCKET_EMAIL / SHIPROCKET_PASSWORD not set on Vercel)
         if (code === 503) {
-          return res.status(503).json({
+          return res.status(200).json({
             success: false,
             error: 'Tracking service is not configured. Please contact support.',
             _debug: process.env.NODE_ENV !== 'production' ? shiprocketErr.message : undefined,
@@ -74,7 +74,7 @@ module.exports = async function handler(req, res) {
 
         // 401 / 403 — authentication / account blocked
         if (code === 401 || code === 403) {
-          return res.status(503).json({
+          return res.status(200).json({
             success: false,
             error: 'Tracking service authentication failed. Please try again in a few minutes.',
           });
@@ -82,7 +82,7 @@ module.exports = async function handler(req, res) {
 
         // 404 — AWB genuinely not found in Shiprocket
         if (code === 404) {
-          return res.status(404).json({
+          return res.status(200).json({
             success: false,
             error: 'Tracking number not found. Please check the number and try again.',
           });
@@ -90,7 +90,7 @@ module.exports = async function handler(req, res) {
 
         // 400 / 422 — Shiprocket does not recognise this AWB format
         if (code === 400 || code === 422) {
-          return res.status(404).json({
+          return res.status(200).json({
             success: false,
             error: 'Tracking number not found or not yet registered with this courier. Please verify and try again.',
           });
@@ -98,7 +98,7 @@ module.exports = async function handler(req, res) {
 
         // 429 — Shiprocket rate limit hit
         if (code === 429) {
-          return res.status(503).json({
+          return res.status(200).json({
             success: false,
             error: 'Tracking service is busy. Please try again in a few minutes.',
           });
@@ -106,7 +106,7 @@ module.exports = async function handler(req, res) {
 
         // 5xx or network / timeout — transient
         if (code >= 500 || code === 0) {
-          return res.status(503).json({
+          return res.status(200).json({
             success: false,
             error: 'Tracking service is temporarily unavailable. Please try again in a few minutes.',
           });
@@ -114,7 +114,7 @@ module.exports = async function handler(req, res) {
 
         // All other unexpected codes — log and return 503
         console.error(`[track] Unexpected Shiprocket error code: ${code}`);
-        return res.status(503).json({
+        return res.status(200).json({
           success: false,
           error: 'An error occurred while fetching tracking data. Please try again.',
         });
@@ -122,16 +122,16 @@ module.exports = async function handler(req, res) {
     }
 
     if (!order_number || !order_number.trim()) {
-      return res.status(400).json({ success: false, error: 'Order number is required.' });
+      return res.status(200).json({ success: false, error: 'Order number is required.' });
     }
 
     if (!email || !email.trim()) {
-      return res.status(400).json({ success: false, error: 'Email address is required.' });
+      return res.status(200).json({ success: false, error: 'Email address is required.' });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
+      return res.status(200).json({ success: false, error: 'Please enter a valid email address.' });
     }
 
     // ── Step 1: Look up order in Shopify Admin API ──
@@ -139,7 +139,7 @@ module.exports = async function handler(req, res) {
     const order = await getOrderByNumberAndEmail(order_number, email);
 
     if (!order) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         error: 'No order found with this order number and email combination. Please check your details and try again.',
       });
@@ -167,8 +167,7 @@ module.exports = async function handler(req, res) {
       } catch (srOrderErr) {
         console.error('[track] Fallback getAWBByOrderNumber failed:', srOrderErr.message);
         // Propagate the specific Shiprocket error code instead of crashing
-        const code = srOrderErr.statusCode || 503;
-        return res.status(code).json({
+        return res.status(200).json({
           success: false,
           error: 'Tracking service authentication or API failure. Please check back later.',
         });
@@ -211,14 +210,14 @@ module.exports = async function handler(req, res) {
 
       // 503 — missing env vars
       if (code === 503) {
-        return res.status(503).json({
+        return res.status(200).json({
           success: false,
           error: 'Tracking service is not configured. Please contact support.',
         });
       }
       // 401/403 — auth/account issue
       if (code === 401 || code === 403) {
-        return res.status(503).json({
+        return res.status(200).json({
           success: false,
           error: 'Tracking service authentication failed. Please try again in a few minutes.',
         });
@@ -242,7 +241,7 @@ module.exports = async function handler(req, res) {
         });
       }
       // All other errors — transient / network
-      return res.status(503).json({
+      return res.status(200).json({
         success: false,
         error: 'Tracking details are temporarily unavailable. Please try again in a few minutes.',
       });
@@ -270,7 +269,7 @@ module.exports = async function handler(req, res) {
   } catch (err) {
     console.error('[track] CRITICAL handler crash:', err.message);
     console.error('[track] Stack trace:', err.stack);
-    return res.status(500).json({
+    return res.status(200).json({
       success: false,
       error: 'An unexpected error occurred. Please try again.',
       _debug: err.message,
